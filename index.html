@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0ea5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .demo-credentials {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .demo-credentials h4 {
+            margin-bottom: 0.5rem;
+            color: #22c55e;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">K</div>
+        
+        <h1>Pricing Analysis</h1>
+        <p class="subtitle">
+            Comprehensive pricing analysis for your products including Kleinpaket eligibility, shipping costs, 
+            VAT calculations, Amazon fees, and detailed profit analysis for European markets.
+        </p>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Results</h3>
+                <p>Get immediate pricing analysis with Kleinpaket eligibility checks and comprehensive profit calculations in seconds.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <h3>Advanced Analytics</h3>
+                <p>Detailed ROI analysis, market insights, and risk assessment for informed decisions.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🌍</div>
+                <h3>European Focus</h3>
+                <p>Specialized for European markets with accurate VAT rates and shipping costs.</p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <a href="http://localhost:3000" class="btn btn-primary">
+                🚀 Launch Application
+            </a>
+            <a href="http://localhost:5000/api/v1/health" class="btn btn-secondary" target="_blank">
+                🔍 Check API Status
+            </a>
+        </div>
+
+        <div class="instructions">
+            <h3>🚀 Quick Start Guide</h3>
+            <ol>
+                <li><strong>Install Dependencies:</strong> Run <span class="code">npm install</span> in the project root</li>
+                <li><strong>Install Client Dependencies:</strong> Run <span class="code">cd client && npm install</span></li>
+                <li><strong>Set up Environment:</strong> Copy <span class="code">env.example</span> to <span class="code">.env</span> and configure</li>
+                <li><strong>Start Development Servers:</strong> Run <span class="code">npm run dev</span></li>
+                <li><strong>Access the App:</strong> Open <a href="http://localhost:3000" style="color: #60a5fa;">http://localhost:3000</a></li>
+            </ol>
+
+            <div class="demo-credentials">
+                <h4>🔓 Demo Mode Credentials</h4>
+                <p><strong>Email:</strong> admin@kleinpaket.com</p>
+                <p><strong>Password:</strong> admin123</p>
+                <p><em>Demo mode allows instant upgrades to Premium/Pro without payment</em></p>
+            </div>
+        </div>
+
+        <div class="instructions" style="margin-top: 2rem;">
+            <h3>📋 Features Overview</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li>✅ <strong>Kleinpaket Eligibility Check</strong> - Strict size/weight/price validation for shipping optimization</li>
+                <li>✅ <strong>Profit Analysis</strong> - Shipping, VAT, Amazon fees, ROI calculations</li>
+                <li>✅ <strong>Subscription Tiers</strong> - Free, Premium (€19.99), Pro (€49.99)</li>
+                <li>✅ <strong>History Tracking</strong> - Save and manage all calculations (Premium+)</li>
+                <li>✅ <strong>Bulk Upload</strong> - Process CSV/Excel files (Premium+)</li>
+                <li>✅ <strong>API Access</strong> - RESTful API with key management (Pro+)</li>
+                <li>✅ <strong>Team Collaboration</strong> - Team workspaces and invitations (Pro+)</li>
+                <li>✅ <strong>Dark/Light Theme</strong> - Responsive design with theme toggle</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check if servers are running
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:5000/api/v1/health');
+                if (response.ok) {
+                    console.log('✅ Backend server is running');
+                }
+            } catch (error) {
+                console.log('❌ Backend server is not running. Please start with: npm run dev');
+            }
+        }
+
+        // Check server status on page load
+        checkServerStatus();
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const features = document.querySelectorAll('.feature');
+            features.forEach((feature, index) => {
+                feature.style.animationDelay = `${index * 0.1}s`;
+                feature.style.animation = 'fadeInUp 0.6s ease forwards';
+            });
+        });
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
