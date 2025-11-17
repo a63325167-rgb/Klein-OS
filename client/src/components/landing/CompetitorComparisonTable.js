@@ -207,11 +207,11 @@ const CompetitorComparisonTable = () => {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-700">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="w-1/3 px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Features
                   </th>
                   {competitors.map((competitor, index) => (
-                    <th key={index} className={`px-6 py-4 text-center text-xs font-medium uppercase tracking-wider ${
+                    <th key={index} className={`w-1/4 px-4 py-4 text-center text-xs font-medium uppercase tracking-wider ${
                       competitor.highlighted 
                         ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30' 
                         : 'text-slate-500 dark:text-slate-400'
@@ -231,19 +231,16 @@ const CompetitorComparisonTable = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
-                <motion.tr
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  {features.map((feature, index) => (
-                    <motion.tr
-                      key={index}
-                      variants={rowVariants}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
-                    >
-                      <td className="px-6 py-4">
+                {features.map((feature, index) => (
+                  <motion.tr
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
+                  >
+                      <td className="w-1/3 px-6 py-4">
                         <div className="flex items-center">
                           <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-3">
                             <feature.icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -261,7 +258,7 @@ const CompetitorComparisonTable = () => {
                       {competitors.map((competitor, compIndex) => {
                         const featureData = featureComparison[feature.name][competitor.name];
                         return (
-                          <td key={compIndex} className={`px-6 py-4 text-center ${
+                          <td key={compIndex} className={`w-1/4 px-4 py-4 text-center ${
                             competitor.highlighted ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                           }`}>
                             <div className="flex flex-col items-center">
@@ -284,9 +281,8 @@ const CompetitorComparisonTable = () => {
                           </td>
                         );
                       })}
-                    </motion.tr>
-                  ))}
-                </motion.tr>
+                  </motion.tr>
+                ))}
               </tbody>
             </table>
           </div>

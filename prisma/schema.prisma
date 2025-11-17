@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  channels  Channel[]
+  products  Product[]
+  createdAt DateTime @default(now())
+}
+
+model Channel {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelType   String   // 'amazon', 'shopify', 'noon'
+  credentials   String   // Encrypted JSON
+  status        String   @default("disconnected")
+  lastSync      DateTime?
+  sales         ChannelSale[]
+  createdAt     DateTime @default(now())
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productName String
+  sku         String
+  cogs        Float
+  category    String   // For return rate prediction
+  sales       ChannelSale[]
+  shippingData ShippingData[]
+  createdAt   DateTime @default(now())
+}
+
+model ChannelSale {
+  id            String   @id @default(uuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  channelId     String
+  channel       Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  saleDate      DateTime
+  salePrice     Float
+  channelFees   Float
+  shippingCost  Float
+  netProfit     Float
+  marginPercent Float
+  returnRate    Float   @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model ShippingData {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  carrier     String   // 'DHL', 'FedEx', 'UPS', 'Local'
+  weight      Float    // kg
+  dimensions  String   // "20x15x10"
+  zone        Int      // shipping zone
+  cost        Float
+  estDays     Int      // estimated delivery days
+  incoterm    String   // 'FOB', 'CIF', 'DDP', etc
+  createdAt   DateTime @default(now())
+}
+
+model IncotermsRule {
+  id           String   @id @default(uuid())
+  incoterm     String   // 'FOB', 'CIF', 'DDP', 'EXW', etc
+  buyerPays    String   // Who pays what (JSON)
+  riskTransfer String   // When risk transfers
+  documentationRequired String
+  createdAt    DateTime @default(now())
+}

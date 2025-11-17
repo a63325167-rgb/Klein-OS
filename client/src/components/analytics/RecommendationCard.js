@@ -121,7 +121,7 @@ const RecommendationCard = ({ recommendation, index }) => {
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${styles.badge}`}>
                   {recommendation.priority.toUpperCase()}
-                </span>
+              </span>
                 {recommendation.impact?.annual_savings && (
                   <div className={`px-3 py-1 rounded-md ${styles.savingsBg} ${styles.savingsText} text-sm font-bold`}>
                     {formatCurrency(recommendation.impact.annual_savings)}/year

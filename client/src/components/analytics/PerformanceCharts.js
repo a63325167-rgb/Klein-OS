@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   PieChart,
@@ -23,6 +23,21 @@ import { TrendingUp, PieChartIcon, BarChart3, Activity, FileSpreadsheet } from '
 
 const PerformanceCharts = ({ chartData, result }) => {
   const [activeChart, setActiveChart] = useState('distribution');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('de-DE', {
@@ -129,7 +144,8 @@ const PerformanceCharts = ({ chartData, result }) => {
                 <Legend 
                   verticalAlign="bottom" 
                   height={36}
-                  wrapperStyle={{ color: '#fff', fontSize: '14px' }}
+                  wrapperStyle={{ color: isDarkMode ? '#ffffff' : 'rgb(30 41 59)', fontSize: '14px' }}
+                  className="[&_.recharts-legend-item-text]:!text-slate-800 dark:[&_.recharts-legend-item-text]:!text-white"
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -142,16 +158,16 @@ const PerformanceCharts = ({ chartData, result }) => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white/5 rounded-lg p-3 border border-white/10"
+                  className="bg-slate-50 dark:bg-white/5 rounded-lg p-3 border border-slate-200 dark:border-white/10"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <div 
                       className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-xs text-gray-400">{item.name}</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400">{item.name}</span>
                   </div>
-                  <div className="text-lg font-bold text-white">
+                  <div className="text-lg font-bold text-slate-800 dark:text-white">
                     {formatCurrency(item.value)}
                   </div>
                 </motion.div>
@@ -200,21 +216,35 @@ const PerformanceCharts = ({ chartData, result }) => {
             </h3>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartData.breakEvenData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke={isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgb(203 213 225)'}
+                />
                 <XAxis 
                   dataKey="units" 
-                  stroke="#fff"
+                  stroke={isDarkMode ? '#ffffff' : 'rgb(30 41 59)'}
                   style={{ fontSize: '12px' }}
-                  label={{ value: 'Units Sold', position: 'insideBottom', offset: -5, fill: '#fff' }}
+                  label={{ 
+                    value: 'Units Sold', 
+                    position: 'insideBottom', 
+                    offset: -5, 
+                    fill: isDarkMode ? '#ffffff' : 'rgb(30 41 59)'
+                  }}
                 />
                 <YAxis 
-                  stroke="#fff"
+                  stroke={isDarkMode ? '#ffffff' : 'rgb(30 41 59)'}
                   style={{ fontSize: '12px' }}
-                  label={{ value: 'Amount (€)', angle: -90, position: 'insideLeft', fill: '#fff' }}
+                  label={{ 
+                    value: 'Amount (€)', 
+                    angle: -90, 
+                    position: 'insideLeft', 
+                    fill: isDarkMode ? '#ffffff' : 'rgb(30 41 59)'
+                  }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend 
-                  wrapperStyle={{ color: '#fff', fontSize: '14px' }}
+                  wrapperStyle={{ color: isDarkMode ? '#ffffff' : 'rgb(30 41 59)', fontSize: '14px' }}
+                  className="[&_.recharts-legend-item-text]:!text-slate-800 dark:[&_.recharts-legend-item-text]:!text-white"
                 />
                 <Line
                   type="monotone"
@@ -252,21 +282,21 @@ const PerformanceCharts = ({ chartData, result }) => {
 
             {/* Break-even stats */}
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-                <div className="text-sm text-cyan-400 mb-1">Break-even Point</div>
-                <div className="text-2xl font-bold text-white">
+              <div className="bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 rounded-lg p-4">
+                <div className="text-sm text-cyan-600 dark:text-cyan-400 mb-1">Break-even Point</div>
+                <div className="text-2xl font-bold text-slate-800 dark:text-white">
                   ~{Math.ceil((result.input.fixed_costs || 500) / (result.totals.net_profit || 1))} units
                 </div>
-                <div className="text-xs text-gray-400 mt-1">
+                <div className="text-xs text-slate-600 dark:text-gray-400 mt-1">
                   Based on €{result.input.fixed_costs || 500} setup costs + per-unit variable costs
                 </div>
               </div>
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                <div className="text-sm text-green-400 mb-1">Profit at 100 units</div>
-                <div className="text-2xl font-bold text-white">
+              <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-lg p-4">
+                <div className="text-sm text-green-600 dark:text-green-400 mb-1">Profit at 100 units</div>
+                <div className="text-2xl font-bold text-slate-800 dark:text-white">
                   {formatCurrency((result.totals.net_profit * 100) - (result.input.fixed_costs || 500))}
                 </div>
-                <div className="text-xs text-gray-400 mt-1">
+                <div className="text-xs text-slate-600 dark:text-gray-400 mt-1">
                   After €{result.input.fixed_costs || 500} setup costs
                 </div>
               </div>
@@ -313,7 +343,7 @@ const PerformanceCharts = ({ chartData, result }) => {
                 textAnchor="middle"
                 dominantBaseline="middle"
                 className="text-3xl font-bold"
-                fill="#fff"
+                fill={isDarkMode ? '#ffffff' : '#1e293b'}
               >
                 {result.totals.profit_margin.toFixed(1)}%
               </text>
@@ -323,7 +353,7 @@ const PerformanceCharts = ({ chartData, result }) => {
                 textAnchor="middle"
                 dominantBaseline="middle"
                 className="text-sm"
-                fill="#9CA3AF"
+                fill={isDarkMode ? '#9ca3af' : '#475569'}
               >
                 Profit Margin
               </text>

@@ -197,7 +197,7 @@ export function generateRecommendations(result) {
   const { totals } = result;
   const margin = totals.profit_margin || 0;
   const roi = totals.roi_percent || 0;
-  
+
   const fallbackRecommendations = [];
   
   if (margin >= 25 && roi >= 100) {
@@ -233,8 +233,8 @@ export function generateRecommendations(result) {
       priority_score: 30,
       actionable: 'Review performance weekly and adjust strategy as needed.'
     });
-  }
-  
+}
+
   return fallbackRecommendations.slice(0, 3);
 }
 

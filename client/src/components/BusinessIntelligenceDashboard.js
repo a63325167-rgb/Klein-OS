@@ -246,9 +246,9 @@ const BusinessIntelligenceDashboard = ({ result, onReset, onReRun }) => {
                 <span className="text-sm text-gray-600 dark:text-gray-400">Output VAT (collected)</span>
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
                   {formatCurrency(result.vat.outputVAT || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between">
+            </span>
+          </div>
+          <div className="flex justify-between">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Input VAT (reclaimable)</span>
                 <span className="text-sm font-medium text-green-600 dark:text-green-400">
                   -{formatCurrency(result.vat.inputVAT || 0)}
@@ -258,7 +258,7 @@ const BusinessIntelligenceDashboard = ({ result, onReset, onReRun }) => {
                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Net VAT Liability</span>
                 <span className="text-sm font-bold text-gray-900 dark:text-white">
                   {formatCurrency(result.vat.netVATLiability || result.vat.amount || 0)}
-                </span>
+            </span>
               </div>
             </div>
           </div>

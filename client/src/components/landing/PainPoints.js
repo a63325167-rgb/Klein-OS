@@ -92,7 +92,7 @@ const PainPoints = () => {
             Common Pain Points
           </div>
           
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
             Are You Losing Money on
             <span className="block text-red-600 dark:text-red-400">
               Hidden Costs?

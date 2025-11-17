@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Placeholder Images</title>
+</head>
+<body>
+    <canvas id="hero" width="1200" height="800" style="border: 1px solid #ccc;"></canvas>
+    <canvas id="portfolio" width="1200" height="600" style="border: 1px solid #ccc;"></canvas>
+    <canvas id="chart" width="800" height="400" style="border: 1px solid #ccc;"></canvas>
+
+    <script>
+        // Hero Dashboard Placeholder
+        const heroCanvas = document.getElementById('hero');
+        const heroCtx = heroCanvas.getContext('2d');
+        
+        // Dark background
+        heroCtx.fillStyle = '#0f172a';
+        heroCtx.fillRect(0, 0, 1200, 800);
+        
+        // Dashboard header
+        heroCtx.fillStyle = '#1e293b';
+        heroCtx.fillRect(0, 0, 1200, 60);
+        
+        // Title
+        heroCtx.fillStyle = '#ffffff';
+        heroCtx.font = '24px Arial';
+        heroCtx.fillText('Analytics Dashboard', 20, 35);
+        
+        // KPI Cards
+        const cardColors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'];
+        for (let i = 0; i < 4; i++) {
+            const x = 50 + (i * 250);
+            const y = 100;
+            heroCtx.fillStyle = cardColors[i];
+            heroCtx.fillRect(x, y, 200, 120);
+            heroCtx.fillStyle = '#ffffff';
+            heroCtx.font = '16px Arial';
+            heroCtx.fillText(`KPI ${i + 1}`, x + 20, y + 30);
+        }
+        
+        // Chart area
+        heroCtx.fillStyle = '#1e293b';
+        heroCtx.fillRect(50, 250, 1100, 300);
+        heroCtx.fillStyle = '#ffffff';
+        heroCtx.font = '18px Arial';
+        heroCtx.fillText('Performance Charts', 100, 280);
+        
+        // Save as PNG
+        const heroLink = document.createElement('a');
+        heroLink.download = 'hero-dashboard.png';
+        heroLink.href = heroCanvas.toDataURL();
+        heroLink.click();
+
+        // Portfolio Table Placeholder
+        const portfolioCanvas = document.getElementById('portfolio');
+        const portfolioCtx = portfolioCanvas.getContext('2d');
+        
+        // Light background
+        portfolioCtx.fillStyle = '#ffffff';
+        portfolioCtx.fillRect(0, 0, 1200, 600);
+        
+        // Header
+        portfolioCtx.fillStyle = '#f8fafc';
+        portfolioCtx.fillRect(0, 0, 1200, 50);
+        portfolioCtx.fillStyle = '#1e293b';
+        portfolioCtx.font = '18px Arial';
+        portfolioCtx.fillText('Portfolio Analysis Dashboard', 20, 30);
+        
+        // Table headers
+        const headers = ['Product', 'Category', 'Margin', 'ROI', 'Net Profit', 'Status'];
+        portfolioCtx.fillStyle = '#64748b';
+        portfolioCtx.font = '14px Arial';
+        for (let i = 0; i < headers.length; i++) {
+            portfolioCtx.fillText(headers[i], 20 + (i * 180), 80);
+        }
+        
+        // Table rows
+        const products = ['Bluetooth Headphones', 'Baby Food Jars', 'Print Books', 'Children\'s Clothing'];
+        for (let row = 0; row < products.length; row++) {
+            const y = 120 + (row * 80);
+            portfolioCtx.fillStyle = row % 2 === 0 ? '#f8fafc' : '#ffffff';
+            portfolioCtx.fillRect(0, y, 1200, 80);
+            portfolioCtx.fillStyle = '#1e293b';
+            portfolioCtx.font = '14px Arial';
+            portfolioCtx.fillText(products[row], 20, y + 25);
+        }
+        
+        // Save as PNG
+        const portfolioLink = document.createElement('a');
+        portfolioLink.download = 'portfolio-table.png';
+        portfolioLink.href = portfolioCanvas.toDataURL();
+        portfolioLink.click();
+
+        // Demo Chart Placeholder
+        const chartCanvas = document.getElementById('chart');
+        const chartCtx = chartCanvas.getContext('2d');
+        
+        // Background
+        chartCtx.fillStyle = '#ffffff';
+        chartCtx.fillRect(0, 0, 800, 400);
+        
+        // Chart area
+        chartCtx.fillStyle = '#f8fafc';
+        chartCtx.fillRect(50, 50, 700, 300);
+        
+        // Title
+        chartCtx.fillStyle = '#1e293b';
+        chartCtx.font = '20px Arial';
+        chartCtx.fillText('Cost Distribution Analysis', 100, 40);
+        
+        // Pie chart representation
+        chartCtx.fillStyle = '#10b981';
+        chartCtx.beginPath();
+        chartCtx.arc(200, 200, 80, 0, Math.PI * 0.6);
+        chartCtx.lineTo(200, 200);
+        chartCtx.fill();
+        
+        chartCtx.fillStyle = '#3b82f6';
+        chartCtx.beginPath();
+        chartCtx.arc(200, 200, 80, Math.PI * 0.6, Math.PI * 1.2);
+        chartCtx.lineTo(200, 200);
+        chartCtx.fill();
+        
+        chartCtx.fillStyle = '#f59e0b';
+        chartCtx.beginPath();
+        chartCtx.arc(200, 200, 80, Math.PI * 1.2, Math.PI * 1.8);
+        chartCtx.lineTo(200, 200);
+        chartCtx.fill();
+        
+        // Legend
+        chartCtx.fillStyle = '#64748b';
+        chartCtx.font = '14px Arial';
+        chartCtx.fillText('Profit: 28.4%', 350, 150);
+        chartCtx.fillText('COGS: 45.0%', 350, 180);
+        chartCtx.fillText('Fees: 12.6%', 350, 210);
+        
+        // Save as PNG
+        const chartLink = document.createElement('a');
+        chartLink.download = 'demo-chart.png';
+        chartLink.href = chartCanvas.toDataURL();
+        chartLink.click();
+    </script>
+</body>
+</html>

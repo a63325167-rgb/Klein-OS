@@ -223,10 +223,27 @@ function generateShippingAlternatives(smallPackageEligible, isFreight) {
 }
 
 /**
- * Calculate Amazon fees
+ * Calculate Amazon fees (or platform fees if provided)
  * @returns {object} Fee amount and rate
  */
 export function calculateAmazonFee(product) {
+  // If platform fees are provided (from platform selector), use those instead
+  if (product.platformFees !== undefined && product.platformFees !== null) {
+    const sellingPrice = parseNumberSafe(product.selling_price);
+    const platformFeeAmount = parseNumberSafe(product.platformFees);
+    const platformFeeRate = sellingPrice > 0 ? (platformFeeAmount / sellingPrice) * 100 : 0;
+    
+    return {
+      rate: roundToPrecision(platformFeeRate, 2),
+      amount: roundToPrecision(platformFeeAmount, 2),
+      category: product.category || 'Default',
+      platform: product.platform || 'amazon',
+      platformType: product.platformType || null,
+      feeBreakdown: product.platformFeeBreakdown || {}
+    };
+  }
+  
+  // Default Amazon fee calculation (backward compatibility)
   const sellingPrice = parseNumberSafe(product.selling_price);
   const category = product.category || 'Default';
   
@@ -397,7 +414,17 @@ export function calculateProductAnalysis(product, options = {}) {
   const smallPackageCheck = checkSmallPackageEligibility(product);
   
   // Step 2: Calculate shipping
-  const shipping = calculateShippingCost(product, smallPackageCheck.isEligible);
+  // If platform provides shipping cost override, use it; otherwise calculate normally
+  let shipping = calculateShippingCost(product, smallPackageCheck.isEligible);
+  if (product.shipping_cost_override !== undefined && product.shipping_cost_override !== null) {
+    // shipping_cost_override can be 0 (for FBA where Amazon handles shipping)
+    shipping = {
+      ...shipping,
+      cost: parseNumberSafe(product.shipping_cost_override),
+      chosen: product.platform === 'amazon' && product.platformType === 'fba' ? 'FBA (Amazon Handles Shipping)' : 'Platform Provided',
+      type: product.platform === 'amazon' && product.platformType === 'fba' ? 'FBA' : 'Platform Provided'
+    };
+  }
   
   // Step 3: Calculate fees and taxes
   const amazonFee = calculateAmazonFee(product);
@@ -438,10 +465,12 @@ export function calculateProductAnalysis(product, options = {}) {
       buying_price: parseNumberSafe(product.buying_price),
       selling_price: parseNumberSafe(product.selling_price),
       destination_country: product.destination_country,
+      country: product.destination_country || product.buyer_country || 'Germany',
       length_cm: parseNumberSafe(product.length_cm),
       width_cm: parseNumberSafe(product.width_cm),
       height_cm: parseNumberSafe(product.height_cm),
-      weight_kg: parseNumberSafe(product.weight_kg)
+      weight_kg: parseNumberSafe(product.weight_kg),
+      annual_volume: parseInt(product.annual_volume) || 500
     },
     
     // Calculations

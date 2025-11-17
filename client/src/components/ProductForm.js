@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calculator, RotateCcw, Info } from 'lucide-react';
 import { calculateProductAnalysis, VAT_RATES } from '../utils/simpleCalculator';
+import { fetchProductByASIN } from '../services/amazonService';
 
 const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
   const [formData, setFormData] = useState({
@@ -30,6 +31,12 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
   const [autoVATRate, setAutoVATRate] = useState(19);
   const [selectedParentCategory, setSelectedParentCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  
+  // ASIN Fetch functionality
+  const [asin, setAsin] = useState('');
+  const [marketplace, setMarketplace] = useState('de');
+  const [loading, setLoading] = useState(false);
+  const [asinError, setAsinError] = useState('');
 
   // Helper functions for category selection
   const getSelectedSubcategories = () => {
@@ -61,6 +68,104 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
     setSelectedSubcategory(subcategory);
     const fullPath = `${selectedParentCategory} > ${subcategory}`;
     setFormData(prev => ({ ...prev, category: fullPath }));
+  };
+
+  /**
+   * Validate ASIN format
+   */
+  const validateASIN = (asin) => {
+    if (!asin || asin.trim().length !== 10) {
+      return 'ASIN must be exactly 10 characters';
+    }
+    if (!asin.startsWith('B')) {
+      return 'ASIN must start with "B"';
+    }
+    if (!/^[A-Z0-9]{10}$/.test(asin)) {
+      return 'ASIN must contain only letters and numbers';
+    }
+    return null;
+  };
+
+  /**
+   * Fetch Amazon product data by ASIN
+   */
+  const fetchProduct = async () => {
+    // Validate ASIN format
+    const validationError = validateASIN(asin);
+    if (validationError) {
+      setAsinError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    setAsinError('');
+    
+    try {
+      console.log(`[ProductForm] Fetching ASIN: ${asin} from marketplace: ${marketplace}`);
+      
+      // Call Amazon service
+      const productData = await fetchProductByASIN(asin, marketplace);
+      
+      console.log('[ProductForm] Product data received:', productData);
+      
+      // Auto-fill form with product data
+      setFormData(prev => ({
+        ...prev,
+        product_name: productData.title || prev.product_name,
+        selling_price: productData.price || prev.selling_price,
+        length_cm: productData.dimensions?.length || prev.length_cm,
+        width_cm: productData.dimensions?.width || prev.width_cm,
+        height_cm: productData.dimensions?.height || prev.height_cm,
+        weight_kg: productData.weight || prev.weight_kg,
+        fulfillment_method: productData.fulfillmentType || prev.fulfillment_method
+      }));
+
+      // Try to map category
+      const categoryName = productData.category;
+      if (categoryName) {
+        console.log('[ProductForm] Attempting to map category:', categoryName);
+        // Find matching parent category
+        const matchingParent = categoryHierarchy.find(cat => 
+          categoryName.toLowerCase().includes(cat.parent.toLowerCase()) ||
+          cat.subcategories.some(sub => categoryName.toLowerCase().includes(sub.name.toLowerCase()))
+        );
+        
+        if (matchingParent) {
+          setSelectedParentCategory(matchingParent.parent);
+          // Try to find matching subcategory
+          const matchingSub = matchingParent.subcategories.find(sub =>
+            categoryName.toLowerCase().includes(sub.name.toLowerCase())
+          );
+          if (matchingSub) {
+            handleSubcategoryChange(matchingSub.name);
+          }
+        }
+      }
+      
+      setAsinError('');
+      
+      // Show success message
+      const dimensions = productData.dimensions || {};
+      const dimensionStr = (dimensions.length || dimensions.width || dimensions.height) 
+        ? `${dimensions.length || '?'}×${dimensions.width || '?'}×${dimensions.height || '?'} cm`
+        : 'not available';
+        
+      alert(`✅ Product loaded successfully!\n\nTitle: ${productData.title}\nPrice: ${productData.currency} ${productData.price}\nDimensions: ${dimensionStr}\nWeight: ${productData.weight ? productData.weight + ' kg' : 'not available'}`);
+      
+    } catch (error) {
+      console.error('[ProductForm] Error fetching product:', error);
+      
+      // Show server error message directly
+      const errorMessage = error.message || 'Failed to fetch product. Make sure the backend server is running.';
+      setAsinError(errorMessage);
+      
+      // Keep error visible for 12 seconds
+      setTimeout(() => {
+        setAsinError('');
+      }, 12000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Hierarchical categories with VAT rates by country
@@ -397,6 +502,102 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* ASIN Fetch Section */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+              Quick Import from Amazon
+            </h3>
+          </div>
+          <p className="text-xs text-blue-600 dark:text-blue-300 mb-3">
+            Enter an Amazon ASIN to auto-fill product details (name, price, dimensions, weight)
+          </p>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={asin}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase();
+                  setAsin(value);
+                  
+                  // Real-time validation
+                  if (value.length > 0) {
+                    const validationError = validateASIN(value);
+                    if (validationError) {
+                      setAsinError(validationError);
+                    } else {
+                      setAsinError('');
+                    }
+                  } else {
+                    setAsinError('');
+                  }
+                }}
+                maxLength={10}
+                className={`w-full px-4 py-2.5 rounded-lg border ${
+                  asinError 
+                    ? 'border-red-500 dark:border-red-600' 
+                    : asin.length === 10 && !asinError
+                    ? 'border-green-500 dark:border-green-600'
+                    : 'border-blue-300 dark:border-blue-600'
+                } bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all font-mono`}
+                placeholder="e.g., B08N5WRWNW"
+                disabled={loading}
+              />
+            </div>
+            <select
+              value={marketplace}
+              onChange={(e) => setMarketplace(e.target.value)}
+              disabled={loading}
+              className="px-4 py-2.5 rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all"
+            >
+              <option value="de">🇩🇪 DE</option>
+              <option value="fr">🇫🇷 FR</option>
+              <option value="es">🇪🇸 ES</option>
+              <option value="it">🇮🇹 IT</option>
+              <option value="co.uk">🇬🇧 UK</option>
+              <option value="com">🇺🇸 US</option>
+            </select>
+            <motion.button
+              type="button"
+              onClick={fetchProduct}
+              disabled={loading || !asin || asin.length !== 10 || !!asinError}
+              whileHover={{ scale: loading ? 1 : 1.05 }}
+              whileTap={{ scale: loading ? 1 : 0.95 }}
+              className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
+                loading || !asin || asin.length !== 10 || !!asinError
+                  ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading...
+                </span>
+              ) : (
+                'Fetch Product'
+              )}
+            </motion.button>
+          </div>
+          <AnimatePresence>
+            {asinError && (
+              <motion.p 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center gap-1"
+              >
+                <span>⚠️</span> {asinError}
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Product Name */}
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">

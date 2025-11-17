@@ -15,11 +15,24 @@ const bulkRoutes = require('./routes/bulk');
 const apiRoutes = require('./routes/api');
 const teamRoutes = require('./routes/teams');
 const subscriptionRoutes = require('./routes/subscriptions');
+const amazonRoutes = require('./routes/amazon');
 const { initializeDatabase } = require('./database/init');
 const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// CORS headers for Amazon API
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Security middleware
 app.use(helmet({
@@ -92,6 +105,7 @@ app.use('/api/v1/bulk', authenticateToken, bulkRoutes);
 app.use('/api/v1/api', authenticateToken, apiRoutes);
 app.use('/api/v1/teams', authenticateToken, teamRoutes);
 app.use('/api/v1/subscriptions', authenticateToken, subscriptionRoutes);
+app.use('/api/amazon', amazonRoutes); // Public route for Amazon product lookup
 
 // Health check endpoint
 app.get('/api/v1/health', (req, res) => {

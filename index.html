@@ -3,315 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing Analysis</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .container {
-            text-align: center;
-            max-width: 800px;
-            padding: 2rem;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-            font-size: 2rem;
-            font-weight: bold;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .subtitle {
-            font-size: 1.25rem;
-            margin-bottom: 3rem;
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .feature {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .feature p {
-            opacity: 0.8;
-            line-height: 1.5;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #0ea5e9;
-        }
-
-        .btn-secondary:hover {
-            background: #f8fafc;
-            transform: translateY(-2px);
-        }
-
-        .instructions {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-top: 3rem;
-            text-align: left;
-        }
-
-        .instructions h3 {
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .instructions ol {
-            padding-left: 1.5rem;
-        }
-
-        .instructions li {
-            margin-bottom: 0.5rem;
-            line-height: 1.6;
-        }
-
-        .code {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.9rem;
-        }
-
-        .demo-credentials {
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-
-        .demo-credentials h4 {
-            margin-bottom: 0.5rem;
-            color: #22c55e;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 300px;
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>Amazon Profitability Calculator | Track Multi-Channel Profit | Klein Analytics</title>
+    <meta name="description" content="See your real Amazon profit across all channels. Track profitability on Amazon, Shopify, Noon, and more. Free 14-day trial. 5-minute setup.">
+    <meta name="keywords" content="Amazon profitability calculator, multi-channel profit tracking, Amazon FBA profit, e-commerce analytics, profit calculator">
+    <meta name="author" content="Klein Analytics">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Amazon Profitability Calculator | Track Multi-Channel Profit">
+    <meta property="og:description" content="See your real Amazon profit across all channels. Free 14-day trial. 5-minute setup.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kleinanalytics.com">
+    <meta property="og:image" content="https://kleinanalytics.com/og-image.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Amazon Profitability Calculator | Track Multi-Channel Profit">
+    <meta name="twitter:description" content="See your real Amazon profit across all channels. Free 14-day trial.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Klein Analytics - Amazon Profitability Calculator",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "Free 14-day trial"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "500"
             }
         }
-    </style>
+    </script>
 </head>
 <body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Klein Analytics</div>
+            <a href="#cta" class="nav-cta">Get Early Access</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
     <div class="container">
-        <div class="logo">K</div>
-        
-        <h1>Pricing Analysis</h1>
-        <p class="subtitle">
-            Comprehensive pricing analysis for your products including Kleinpaket eligibility, shipping costs, 
-            VAT calculations, Amazon fees, and detailed profit analysis for European markets.
-        </p>
+                <h1>See Your REAL Amazon Profit—Not Just Revenue</h1>
+                <p class="hero-subheadline">Track profitability across Amazon, Shopify, Noon, and more.</p>
+                <a href="#cta" class="btn btn-primary btn-large">Get Early Access</a>
+                <div class="trust-badges">
+                    <span class="badge">🔒 Secure</span>
+                    <span class="badge">✅ Free for 14 days</span>
+                    <span class="badge">⏱️ 5-minute setup</span>
+                </div>
+                <div class="hero-image">
+                    <img src="https://via.placeholder.com/1200x675/0A1628/FFFFFF?text=Dashboard+Screenshot" 
+                         alt="Amazon profitability dashboard showing cross-channel profit tracking" 
+                         loading="eager" 
+                         width="1200" 
+                         height="675">
+                </div>
+            </div>
+        </section>
 
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">⚡</div>
-                <h3>Instant Results</h3>
-                <p>Get immediate pricing analysis with Kleinpaket eligibility checks and comprehensive profit calculations in seconds.</p>
+        <!-- Problem Section -->
+        <section class="problem-section">
+            <div class="container">
+                <h2>Selling on Multiple Channels? You're Losing Money.</h2>
+                <div class="pain-points">
+                    <article class="pain-point">
+                        <div class="pain-icon">💰</div>
+                        <h3>Hidden Fees Destroy Margins</h3>
+                        <p>Amazon fees, shipping costs, and VAT eat into profits across multiple channels without visibility.</p>
+                    </article>
+                    <article class="pain-point">
+                        <div class="pain-icon">📊</div>
+                        <h3>Cash Flow Nightmares</h3>
+                        <p>No accurate forecasting means inventory orders blind, leading to stockouts or overstock.</p>
+                    </article>
+                    <article class="pain-point">
+                        <div class="pain-icon">↩️</div>
+                        <h3>Returns Kill ROI</h3>
+                        <p>Unpredictable return rates make it impossible to calculate true profitability per product.</p>
+                    </article>
+                </div>
             </div>
-            
-            <div class="feature">
-                <div class="feature-icon">📊</div>
-                <h3>Advanced Analytics</h3>
-                <p>Detailed ROI analysis, market insights, and risk assessment for informed decisions.</p>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2>One Dashboard. All Your Channels.</h2>
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <div class="feature-image">
+                            <img src="https://via.placeholder.com/800x450/F0F5FA/0A74DA?text=Cross-Channel+Dashboard" 
+                                 alt="Cross-channel profitability dashboard showing Amazon, Shopify, and Noon sales" 
+                                 loading="lazy" 
+                                 width="800" 
+                                 height="450">
+                        </div>
+                        <h3>Cross-Channel Profitability</h3>
+                        <p>See real profit margins across Amazon FBA, Shopify, Noon, and all your channels in one unified view.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-image">
+                            <img src="https://via.placeholder.com/800x450/F0F5FA/0A74DA?text=Cash+Flow+Forecast" 
+                                 alt="90-day cash flow forecasting dashboard with revenue projections" 
+                                 loading="lazy" 
+                                 width="800" 
+                                 height="450">
+                        </div>
+                        <h3>90-Day Cash Flow Forecasting</h3>
+                        <p>Predict future cash flow with AI-powered forecasting to make informed inventory decisions.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-image">
+                            <img src="https://via.placeholder.com/800x450/F0F5FA/0A74DA?text=Return+Rate+Prediction" 
+                                 alt="Return rate prediction analytics showing product return risk analysis" 
+                                 loading="lazy" 
+                                 width="800" 
+                                 height="450">
+                        </div>
+                        <h3>Return Rate Prediction</h3>
+                        <p>AI predicts return rates per product to calculate true ROI before inventory orders.</p>
+                    </article>
+                </div>
             </div>
-            
-            <div class="feature">
-                <div class="feature-icon">🌍</div>
-                <h3>European Focus</h3>
-                <p>Specialized for European markets with accurate VAT rates and shipping costs.</p>
+        </section>
+
+        <!-- Social Proof Section -->
+        <section class="social-proof-section">
+            <div class="container">
+                <h2>Trusted by 500+ Sellers</h2>
+                <div class="testimonials">
+                    <article class="testimonial">
+                        <div class="stars">★★★★★</div>
+                        <blockquote>
+                            <p>"Finally, I can see my real profit. Saved me from launching 3 products that would have lost money."</p>
+                        </blockquote>
+                        <footer class="testimonial-author">
+                            <strong>Sarah M.</strong>
+                            <span>Amazon Seller, Germany</span>
+                        </footer>
+                    </article>
+                    <article class="testimonial">
+                        <div class="stars">★★★★★</div>
+                        <blockquote>
+                            <p>"The cash flow forecast prevented a $50K inventory mistake. This tool pays for itself monthly."</p>
+                        </blockquote>
+                        <footer class="testimonial-author">
+                            <strong>James K.</strong>
+                            <span>Multi-Channel Seller, UK</span>
+                        </footer>
+                    </article>
+                    <article class="testimonial">
+                        <div class="stars">★★★★★</div>
+                        <blockquote>
+                            <p>"Seeing returns predicted before ordering changed everything. My margins improved 15%."</p>
+                        </blockquote>
+                        <footer class="testimonial-author">
+                            <strong>Maria R.</strong>
+                            <span>E-commerce Manager, Spain</span>
+                        </footer>
+                    </article>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-value">500+</div>
+                        <div class="metric-label">Active Sellers</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">€2.4M+</div>
+                        <div class="metric-label">Losses Prevented</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">12</div>
+                        <div class="metric-label">Countries Supported</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">99.9%</div>
+                        <div class="metric-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section">
+            <div class="container">
+                <h2>Get Started in 3 Steps</h2>
+                <div class="steps">
+                    <article class="step">
+                        <div class="step-number">1</div>
+                        <h3>Connect Your Channels</h3>
+                        <p>Link Amazon, Shopify, Noon, and other platforms in under 2 minutes with secure API access.</p>
+                    </article>
+                    <article class="step">
+                        <div class="step-number">2</div>
+                        <h3>See Your Real Profit</h3>
+                        <p>Dashboard instantly calculates true margins after fees, shipping, VAT, and returns.</p>
+                    </article>
+                    <article class="step">
+                        <div class="step-number">3</div>
+                        <h3>Forecast & Optimize</h3>
+                        <p>Use AI-powered cash flow forecasts and return predictions to make smarter decisions.</p>
+                    </article>
             </div>
         </div>
+        </section>
 
-        <div class="buttons">
-            <a href="http://localhost:3000" class="btn btn-primary">
-                🚀 Launch Application
-            </a>
-            <a href="http://localhost:5000/api/v1/health" class="btn btn-secondary" target="_blank">
-                🔍 Check API Status
-            </a>
+        <!-- Final CTA Section -->
+        <section class="cta-section" id="cta">
+            <div class="container">
+                <h2>Ready to See Your REAL Profit?</h2>
+                <form class="cta-form" id="signup-form" novalidate>
+                    <div class="form-group">
+                        <label for="email" class="sr-only">Email Address</label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               placeholder="Enter your email address" 
+                               required 
+                               aria-label="Email address">
+                        <button type="submit" class="btn btn-primary btn-large">Get Early Access</button>
         </div>
-
-        <div class="instructions">
-            <h3>🚀 Quick Start Guide</h3>
-            <ol>
-                <li><strong>Install Dependencies:</strong> Run <span class="code">npm install</span> in the project root</li>
-                <li><strong>Install Client Dependencies:</strong> Run <span class="code">cd client && npm install</span></li>
-                <li><strong>Set up Environment:</strong> Copy <span class="code">env.example</span> to <span class="code">.env</span> and configure</li>
-                <li><strong>Start Development Servers:</strong> Run <span class="code">npm run dev</span></li>
-                <li><strong>Access the App:</strong> Open <a href="http://localhost:3000" style="color: #60a5fa;">http://localhost:3000</a></li>
-            </ol>
-
-            <div class="demo-credentials">
-                <h4>🔓 Demo Mode Credentials</h4>
-                <p><strong>Email:</strong> admin@kleinpaket.com</p>
-                <p><strong>Password:</strong> admin123</p>
-                <p><em>Demo mode allows instant upgrades to Premium/Pro without payment</em></p>
+                    <p class="form-subtext">✅ Free 14 days | 🔒 No credit card | ⏱️ 5 minutes to setup</p>
+                </form>
             </div>
-        </div>
+        </section>
+    </main>
 
-        <div class="instructions" style="margin-top: 2rem;">
-            <h3>📋 Features Overview</h3>
-            <ul style="list-style: none; padding-left: 0;">
-                <li>✅ <strong>Kleinpaket Eligibility Check</strong> - Strict size/weight/price validation for shipping optimization</li>
-                <li>✅ <strong>Profit Analysis</strong> - Shipping, VAT, Amazon fees, ROI calculations</li>
-                <li>✅ <strong>Subscription Tiers</strong> - Free, Premium (€19.99), Pro (€49.99)</li>
-                <li>✅ <strong>History Tracking</strong> - Save and manage all calculations (Premium+)</li>
-                <li>✅ <strong>Bulk Upload</strong> - Process CSV/Excel files (Premium+)</li>
-                <li>✅ <strong>API Access</strong> - RESTful API with key management (Pro+)</li>
-                <li>✅ <strong>Team Collaboration</strong> - Team workspaces and invitations (Pro+)</li>
-                <li>✅ <strong>Dark/Light Theme</strong> - Responsive design with theme toggle</li>
-            </ul>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <nav class="footer-nav">
+                <a href="/about">About</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
+                <a href="/contact">Contact</a>
+            </nav>
+            <p class="copyright">&copy; 2025 Klein Analytics. All rights reserved.</p>
         </div>
-    </div>
+    </footer>
 
+    <!-- Minimal JavaScript for Form Validation -->
     <script>
-        // Check if servers are running
-        async function checkServerStatus() {
-            try {
-                const response = await fetch('http://localhost:5000/api/v1/health');
-                if (response.ok) {
-                    console.log('✅ Backend server is running');
-                }
-            } catch (error) {
-                console.log('❌ Backend server is not running. Please start with: npm run dev');
+        (function() {
+            const form = document.getElementById('signup-form');
+            const emailInput = document.getElementById('email');
+            
+            function validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            function showError(input, message) {
+                input.setAttribute('aria-invalid', 'true');
+                input.style.borderColor = '#ef4444';
+                if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
+                    const error = document.createElement('span');
+                    error.className = 'error-message';
+                    error.textContent = message;
+                    error.style.color = '#ef4444';
+                    error.style.fontSize = '0.875rem';
+                    error.style.marginTop = '0.5rem';
+                    error.style.display = 'block';
+                    input.parentNode.insertBefore(error, input.nextSibling);
             }
         }
 
-        // Check server status on page load
-        checkServerStatus();
-
-        // Add some interactive effects
-        document.addEventListener('DOMContentLoaded', function() {
-            const features = document.querySelectorAll('.feature');
-            features.forEach((feature, index) => {
-                feature.style.animationDelay = `${index * 0.1}s`;
-                feature.style.animation = 'fadeInUp 0.6s ease forwards';
-            });
-        });
-
-        // Add CSS animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
+            function clearError(input) {
+                input.setAttribute('aria-invalid', 'false');
+                input.style.borderColor = '';
+                const error = input.parentNode.querySelector('.error-message');
+                if (error) {
+                    error.remove();
                 }
             }
-        `;
-        document.head.appendChild(style);
+            
+            emailInput.addEventListener('blur', function() {
+                if (this.value && !validateEmail(this.value)) {
+                    showError(this, 'Please enter a valid email address');
+                } else {
+                    clearError(this);
+                }
+            });
+            
+            emailInput.addEventListener('input', function() {
+                if (this.value && validateEmail(this.value)) {
+                    clearError(this);
+                }
+            });
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                
+                if (!email) {
+                    showError(emailInput, 'Email address is required');
+                    emailInput.focus();
+                    return;
+                }
+                
+                if (!validateEmail(email)) {
+                    showError(emailInput, 'Please enter a valid email address');
+                    emailInput.focus();
+                    return;
+                }
+                
+                // Here you would send to your backend
+                console.log('Form submitted:', email);
+                
+                // Show success state
+                form.innerHTML = '<div class="success-message" style="text-align: center; padding: 2rem; color: #00D084; font-size: 1.125rem; font-weight: 600;">✅ Check your email to confirm your early access!</div>';
+            });
+        })();
     </script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+# Project: Amazon E-Commerce Analytics SaaS
+# Tech Stack: Next.js 15, TypeScript, Tailwind CSS, Recharts
+# Target: Professional B2B Amazon sellers (not gamers)
+
+## Core Rules
+- This is a B2B financial analytics tool, NOT a gaming dashboard
+- Every calculation must be accurate to ±1% of real-world values
+- NO fake data, NO mocked projections, NO simulated tracking
+- If a feature requires API integration that doesn't exist yet, show placeholder text: "Available in Pro plan" — don't fake the data
+- All financial numbers must have clear "How is this calculated?" tooltips
+
+## Code Style
+- Use TypeScript strict mode (no `any` types)
+- Functional components only (no class components)
+- Tailwind CSS for all styling (no inline styles, no CSS modules)
+- Component names: PascalCase (e.g., `ProfitMarginCard.tsx`)
+- File structure: `/components`, `/lib`, `/app`, `/types`
+
+## Color Palette (B2B Professional)
+- Success/Profit: #10b981 (green)
+- Warning/Opportunity: #f59e0b (amber)
+- Danger/Loss: #ef4444 (red)
+- Primary: #3b82f6 (blue)
+- Neutral: #6b7280 (gray)
+- Background Dark: #0a0a0a
+- Text Dark: #ffffff
+- NO neon colors (cyan #00ffff, hot pink #ff69b4, purple #8b5cf6)
+
+## Calculation Standards
+- VAT calculation for Germany (19% standard rate)
+- Amazon referral fees: 8-15% by category (default 15%)
+- FBA fulfillment fees: size/weight-based (use lookup table)
+- Profit Margin benchmarks: <8% POOR, 8-15% FAIR, 15-25% GOOD, 25%+ EXCELLENT
+- ROI is calculated as: (Net Profit / Total Investment) × 100
+
+## What NOT to do
+- DO NOT create mocked/fake projection data
+- DO NOT use gaming/neon colors
+- DO NOT add "vs previous" metrics unless historical data exists
+- DO NOT create duplicate files with similar names
+- DO NOT leave incomplete code or comments like "// TODO: implement this"
+- DO NOT add features I didn't ask for
+
+## When making changes
+1. Ask me to confirm the approach before implementing
+2. Make changes to ONE file at a time
+3. Show me the exact lines changed (not the entire file)
+4. Wait for my approval before moving to the next file
+5. If you're unsure about business logic, ASK ME first
+
+## Testing checklist (you must verify after each change)
+- [ ] Does the math add up correctly?
+- [ ] Are colors from the B2B palette?
+- [ ] Does dark mode work on this component?
+- [ ] Is there a tooltip explaining the calculation?
+- [ ] Did I test with realistic Amazon product data?

@@ -20,6 +20,7 @@ import PerformanceCharts from './PerformanceCharts';
 import InsightFeed from './InsightFeed';
 import BulkUploader from './BulkUploader';
 import RecommendationCard from './RecommendationCard';
+import ActionsPanel from './ActionsPanel';
 import {
   analyzePerformanceTier,
   generateInsights,
@@ -32,11 +33,112 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
   const [copied, setCopied] = useState(false);
   const [vatBreakdownExpanded, setVatBreakdownExpanded] = useState(false);
 
-  // Generate analytics data
-  const performanceTier = useMemo(() => analyzePerformanceTier(result), [result]);
-  const insights = useMemo(() => generateInsights(result), [result]);
-  const recommendations = useMemo(() => generateRecommendations(result), [result]);
-  const chartData = useMemo(() => generateChartData(result), [result]);
+  // Ensure result has all required properties with defaults (wrapped in useMemo for performance)
+  const safeResult = useMemo(() => {
+    if (!result) return null;
+    return {
+      ...result,
+      input: result.input || {
+        product_name: 'Unknown Product',
+        selling_price: 0,
+        buying_price: 0,
+        destination_country: 'Germany',
+        category: 'Electronics',
+        annual_volume: 500
+      },
+      totals: result.totals || {
+        total_cost: 0,
+        net_profit: 0,
+        roi_percent: 0,
+        profit_margin: 0
+      },
+      smallPackageCheck: result.smallPackageCheck || {
+        isEligible: false,
+        message: 'Unable to determine eligibility',
+        failures: []
+      },
+      shipping: result.shipping || { cost: 0 },
+      amazonFee: result.amazonFee || { amount: 0 },
+      vat: result.vat || {
+        rate: 19,
+        netVATLiability: 0,
+        sellingPriceNet: result.input?.selling_price || 0
+      },
+      returnBuffer: result.returnBuffer || 0
+    };
+  }, [result]);
+
+  // ALL HOOKS AT TOP (before any conditional returns)
+  // Generate analytics data with safe result
+  const performanceTier = useMemo(() => {
+    if (!safeResult) {
+      return { tier: 'UNKNOWN', emoji: '❓', color: 'gray', description: 'Unable to analyze performance' };
+    }
+    try {
+      return analyzePerformanceTier(safeResult);
+    } catch (error) {
+      console.error('Error analyzing performance tier:', error);
+      return { tier: 'UNKNOWN', emoji: '❓', color: 'gray', description: 'Unable to analyze performance' };
+    }
+  }, [safeResult]);
+
+  const insights = useMemo(() => {
+    if (!safeResult) {
+      return [];
+    }
+    try {
+      return generateInsights(safeResult);
+    } catch (error) {
+      console.error('Error generating insights:', error);
+      return [];
+    }
+  }, [safeResult]);
+
+  const recommendations = useMemo(() => {
+    if (!safeResult) {
+      return [];
+    }
+    try {
+      return generateRecommendations(safeResult);
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      return [];
+    }
+  }, [safeResult]);
+
+  const chartData = useMemo(() => {
+    if (!safeResult) {
+      return {
+        profitDistribution: [],
+        revenueVsCost: [],
+        costBreakdown: [],
+        breakEvenData: []
+      };
+    }
+    try {
+      return generateChartData(safeResult);
+    } catch (error) {
+      console.error('Error generating chart data:', error);
+      return {
+        profitDistribution: [],
+        revenueVsCost: [],
+        costBreakdown: [],
+        breakEvenData: []
+      };
+    }
+  }, [safeResult]);
+
+  // NOW safe to do early return (all hooks already called)
+  if (!result || !safeResult) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-8 text-center">
+        <p className="text-red-600 dark:text-red-400">Error: No calculation result available</p>
+        <button onClick={onReset} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+          Start New Calculation
+        </button>
+      </div>
+    );
+  }
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('de-DE', {
@@ -46,7 +148,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+    navigator.clipboard.writeText(JSON.stringify(safeResult, null, 2));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -113,13 +215,13 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                 </h1>
                 <div className="flex items-center gap-3 mt-2">
                   <p className="text-slate-600 dark:text-slate-400">
-                    Advanced analytics & insights for {result.input.product_name}
+                    Advanced analytics & insights for {safeResult.input.product_name}
                   </p>
-                  {result.timestamp && (
+                  {safeResult.timestamp && (
                     <div className="flex items-center gap-1.5 text-xs bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
                       <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                       <span className="text-slate-600 dark:text-slate-400 font-medium">
-                        {formatTimestamp(result.timestamp)}
+                        {formatTimestamp(safeResult.timestamp)}
                       </span>
                     </div>
                   )}
@@ -158,7 +260,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                   const url = URL.createObjectURL(dataBlob);
                   const link = document.createElement('a');
                   link.href = url;
-                  link.download = `analysis-${result.input.product_name}-${Date.now()}.json`;
+                  link.download = `analysis-${safeResult.input.product_name}-${Date.now()}.json`;
                   link.click();
                   URL.revokeObjectURL(url);
                 }}
@@ -176,26 +278,26 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
             className={`border-2 rounded-xl p-4 ${
-              result.smallPackageCheck.isEligible
+              safeResult.smallPackageCheck.isEligible
                 ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
                 : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
             }`}
           >
             <div className="flex items-center gap-3">
-              {result.smallPackageCheck.isEligible ? (
+              {safeResult.smallPackageCheck.isEligible ? (
                 <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
               ) : (
                 <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
               )}
               <div className="flex-1">
                 <p className={`font-semibold ${
-                  result.smallPackageCheck.isEligible ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
+                  safeResult.smallPackageCheck.isEligible ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
                 }`}>
-                  {result.smallPackageCheck.message}
+                  {safeResult.smallPackageCheck.message}
                 </p>
-                {!result.smallPackageCheck.isEligible && result.smallPackageCheck.failures && (
+                {!safeResult.smallPackageCheck.isEligible && safeResult.smallPackageCheck.failures && (
                   <p className="text-sm text-gray-400 mt-1">
-                    Issues: {result.smallPackageCheck.failures.join(', ')}
+                    Issues: {safeResult.smallPackageCheck.failures.join(', ')}
                   </p>
                 )}
               </div>
@@ -257,7 +359,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                   >
                     <div className="text-sm text-blue-600 dark:text-blue-400 mb-2 font-medium">Revenue</div>
                     <div className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
-                      {formatCurrency(result.input.selling_price)}
+                      {formatCurrency(safeResult.input.selling_price)}
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">Per unit</div>
                   </motion.div>
@@ -268,16 +370,16 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                     transition={{ delay: 0.2 }}
                     whileHover={{ scale: 1.05 }}
                     className={`bg-white dark:bg-slate-800 ${
-                      result.totals.profit_margin >= 20
+                      safeResult.totals.profit_margin >= 20
                         ? 'border-green-300 dark:border-green-700'
                         : 'border-yellow-300 dark:border-yellow-700'
                     } border rounded-xl p-6 shadow-lg`}
                   >
-                    <div className={`text-sm mb-2 font-medium ${getMarginColor(result.totals.profit_margin)}`}>
+                    <div className={`text-sm mb-2 font-medium ${getMarginColor(safeResult.totals.profit_margin)}`}>
                       Profit Margin
                     </div>
-                    <div className={`text-3xl font-bold ${getMarginColor(result.totals.profit_margin)} mb-1`}>
-                      {result.totals.profit_margin.toFixed(1)}%
+                    <div className={`text-3xl font-bold ${getMarginColor(safeResult.totals.profit_margin)} mb-1`}>
+                      {safeResult.totals.profit_margin.toFixed(1)}%
                     </div>
                     <div className="text-xs text-gray-400">
                       {performanceTier.tier} performance
@@ -292,8 +394,8 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg"
                   >
                     <div className="text-sm text-blue-600 dark:text-blue-400 mb-2 font-medium">ROI</div>
-                    <div className="text-3xl font-bold text-white mb-1">
-                      {result.totals.roi_percent.toFixed(1)}%
+                    <div className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+                      {safeResult.totals.roi_percent.toFixed(1)}%
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">Return on investment</div>
                   </motion.div>
@@ -306,8 +408,8 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg"
                   >
                     <div className="text-sm text-blue-600 dark:text-blue-400 mb-2 font-medium">Net Profit</div>
-                    <div className="text-3xl font-bold text-white mb-1">
-                      {formatCurrency(result.totals.net_profit)}
+                    <div className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+                      {formatCurrency(safeResult.totals.net_profit)}
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">After all costs</div>
                   </motion.div>
@@ -331,25 +433,25 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                     {/* Debug Information - Remove after testing */}
                     {process.env.NODE_ENV === 'development' && (
                       <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-xs">
-                        <strong>Debug:</strong> Seller: {result.input.seller_country || result.input.destination_country}, 
-                        Buyer: {result.input.buyer_country || result.input.destination_country}, 
-                        Storage: {result.input.storage_country}, 
-                        Fulfillment: {result.input.fulfillment_method || 'FBA'}, 
-                        Type: {result.input.transaction_type || 'B2C'}
+                        <strong>Debug:</strong> Seller: {safeResult.input.seller_country || safeResult.input.destination_country}, 
+                        Buyer: {safeResult.input.buyer_country || safeResult.input.destination_country}, 
+                        Storage: {safeResult.input.storage_country}, 
+                        Fulfillment: {safeResult.input.fulfillment_method || 'FBA'}, 
+                        Type: {safeResult.input.transaction_type || 'B2C'}
                       </div>
                     )}
                     
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700 dark:text-blue-300">Applicable Rate</span>
                       <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-                        {result.vat.rate}% ({result.input.buyer_country || result.input.destination_country} - Standard)
+                        {safeResult.vat.rate}% ({safeResult.input.buyer_country || safeResult.input.destination_country} - Standard)
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700 dark:text-blue-300">Category</span>
                       <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-                        {result.input.category} (standard rate)
+                        {safeResult.input.category} (standard rate)
                       </span>
                     </div>
                     
@@ -358,9 +460,9 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                       <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
                         {(() => {
                           // Calculate transaction type based on same logic as Rule Applied
-                          const sellerCountry = result.input.seller_country || result.input.destination_country;
-                          const buyerCountry = result.input.buyer_country || result.input.destination_country;
-                          const transactionType = result.input.transaction_type || 'B2C';
+                          const sellerCountry = safeResult.input.seller_country || safeResult.input.destination_country;
+                          const buyerCountry = safeResult.input.buyer_country || safeResult.input.destination_country;
+                          const transactionType = safeResult.input.transaction_type || 'B2C';
                           
                           // Check if domestic sale
                           const isDomestic = sellerCountry === buyerCountry;
@@ -517,13 +619,13 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                             if (isReverseCharge) {
                               return `Cross-border B2B sale (${sellerCountry} → ${buyerCountry}). Using 0% VAT because reverse charge applies - the buyer accounts for VAT in their own country.`;
                             } else if (isLocalSale) {
-                              return `Local sale in ${buyerCountry}. Using ${buyerCountry} VAT (${result.vat.rate}%) because your FBA inventory is stored in ${buyerCountry} (customer country).`;
+                              return `Local sale in ${buyerCountry}. Using ${buyerCountry} VAT (${safeResult.vat.rate}%) because your FBA inventory is stored in ${buyerCountry} (customer country).`;
                             } else if (isDomestic) {
-                              return `Domestic sale in ${sellerCountry}. Using ${sellerCountry} VAT (${result.vat.rate}%) for both seller and buyer in same country.`;
+                              return `Domestic sale in ${sellerCountry}. Using ${sellerCountry} VAT (${safeResult.vat.rate}%) for both seller and buyer in same country.`;
                             } else if (isDistanceSelling) {
-                              return `Cross-border sale (${sellerCountry} → ${buyerCountry}). Using ${buyerCountry} VAT (${result.vat.rate}%) because your annual cross-border sales (€${annualSales.toLocaleString()}) exceed the €10,000 distance selling threshold.`;
+                              return `Cross-border sale (${sellerCountry} → ${buyerCountry}). Using ${buyerCountry} VAT (${safeResult.vat.rate}%) because your annual cross-border sales (€${annualSales.toLocaleString()}) exceed the €10,000 distance selling threshold.`;
                             } else {
-                              return `Cross-border sale (${sellerCountry} → ${buyerCountry}). Using ${sellerCountry} VAT (${result.vat.rate}%) because your annual cross-border sales (€${annualSales.toLocaleString()}) are below the €10,000 distance selling threshold.`;
+                              return `Cross-border sale (${sellerCountry} → ${buyerCountry}). Using ${sellerCountry} VAT (${safeResult.vat.rate}%) because your annual cross-border sales (€${annualSales.toLocaleString()}) are below the €10,000 distance selling threshold.`;
                             }
                           })()}
                         </p>
@@ -547,15 +649,15 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600 dark:text-slate-400">Buying Price</span>
-                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(result.input.buying_price)}</span>
+                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.input.buying_price)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-400">Amazon Fee ({result.amazonFee.rate}%)</span>
-                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(result.amazonFee.amount)}</span>
+                      <span className="text-slate-600 dark:text-slate-400">Amazon Fee ({safeResult.amazonFee.rate || 15}%)</span>
+                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.amazonFee.amount)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-400">Shipping ({result.shipping.type})</span>
-                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(result.shipping.net || result.shipping.cost)}</span>
+                      <span className="text-slate-600 dark:text-slate-400">Shipping ({safeResult.shipping.type || 'Standard'})</span>
+                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.shipping.net || safeResult.shipping.cost)}</span>
                     </div>
                     
                     {/* VAT Breakdown - Expandable EU Methodology */}
@@ -566,7 +668,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                            VAT Breakdown ({result.vat.rate}%)
+                            VAT Breakdown ({safeResult.vat.rate}%)
                           </span>
                           <div className="group relative">
                             <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 cursor-help" />
@@ -597,38 +699,38 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                               {process.env.NODE_ENV === 'development' && (
                                 <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-xs mb-3">
                                   <strong>VAT Debug:</strong><br/>
-                                  Output VAT: €{result.vat.outputVAT?.toFixed(2) || 0}<br/>
-                                  Input VAT COGS: -€{result.vat.inputVAT_COGS?.toFixed(2) || 0}<br/>
-                                  Input VAT Fees: -€{result.vat.inputVAT_AmazonFee?.toFixed(2) || 0}<br/>
-                                  Input VAT Shipping: -€{result.vat.inputVAT_Shipping?.toFixed(2) || 0}<br/>
-                                  Input VAT Return: -€{result.vat.inputVAT_ReturnBuffer?.toFixed(2) || 0}<br/>
-                                  <strong>Net VAT: €{result.vat.netVATLiability?.toFixed(2) || 0}</strong>
+                                  Output VAT: €{safeResult.vat.outputVAT?.toFixed(2) || 0}<br/>
+                                  Input VAT COGS: -€{safeResult.vat.inputVAT_COGS?.toFixed(2) || 0}<br/>
+                                  Input VAT Fees: -€{safeResult.vat.inputVAT_AmazonFee?.toFixed(2) || 0}<br/>
+                                  Input VAT Shipping: -€{safeResult.vat.inputVAT_Shipping?.toFixed(2) || 0}<br/>
+                                  Input VAT Return: -€{safeResult.vat.inputVAT_ReturnBuffer?.toFixed(2) || 0}<br/>
+                                  <strong>Net VAT: €{safeResult.vat.netVATLiability?.toFixed(2) || 0}</strong>
                                 </div>
                               )}
                               
                               <div className="flex justify-between items-center">
                                 <span className="text-sm text-slate-600 dark:text-slate-400">Output VAT (collected from customer)</span>
-                                <span className="text-sm text-slate-800 dark:text-white font-medium">{formatCurrency(result.vat.outputVAT || 0)}</span>
+                                <span className="text-sm text-slate-800 dark:text-white font-medium">{formatCurrency(safeResult.vat.outputVAT || 0)}</span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on COGS)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(result.vat.inputVAT_COGS || 0)}</span>
+                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_COGS || 0)}</span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on Amazon fees)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(result.vat.inputVAT_AmazonFee || 0)}</span>
+                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_AmazonFee || 0)}</span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on shipping)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(result.vat.inputVAT_Shipping || 0)}</span>
+                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_Shipping || 0)}</span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on return buffer)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(result.vat.inputVAT_ReturnBuffer || 0)}</span>
+                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_ReturnBuffer || 0)}</span>
                               </div>
                               <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
                                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Net VAT Liability (what you pay tax office)</span>
-                                <span className="text-sm text-slate-800 dark:text-white font-bold">{formatCurrency(result.vat.netVATLiability || 0)}</span>
+                                <span className="text-sm text-slate-800 dark:text-white font-bold">{formatCurrency(safeResult.vat.netVATLiability || 0)}</span>
                               </div>
                             </div>
                           </motion.div>
@@ -638,11 +740,11 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                     
                     <div className="flex justify-between items-center mt-3">
                       <span className="text-slate-600 dark:text-slate-400">Return Buffer</span>
-                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(result.returnBuffer)}</span>
+                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.returnBuffer)}</span>
                     </div>
                     <div className="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-between items-center">
                       <span className="text-slate-800 dark:text-white font-bold text-lg">Total Costs</span>
-                      <span className="text-slate-800 dark:text-white font-bold text-xl">{formatCurrency(result.totals.total_cost)}</span>
+                      <span className="text-slate-800 dark:text-white font-bold text-xl">{formatCurrency(safeResult.totals.total_cost)}</span>
                     </div>
                   </div>
                 </div>
@@ -664,21 +766,9 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
               <BulkUploader />
             )}
 
-            {/* Recommendations Tab */}
+            {/* Actions Tab - Trigger-based Recommendations */}
             {activeTab === 'recommendations' && (
-              <div className="space-y-6">
-              <div className="flex items-center gap-3 mb-6">
-                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
-                  Actionable Recommendations
-                </h3>
-              </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recommendations.map((rec, index) => (
-                    <RecommendationCard key={index} recommendation={rec} index={index} />
-                  ))}
-                </div>
-              </div>
+              <ActionsPanel result={result} />
             )}
           </motion.div>
         </AnimatePresence>
