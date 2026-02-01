@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { 
   ArrowRight, 
   BarChart3, 
@@ -22,12 +23,19 @@ import {
   Zap
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import AnalyticsDemo from '../components/AnalyticsDemo';
+import { useScrollAnimation, fadeInUp, staggerDelay } from '../components/ChartAnimations';
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [activeFaq, setActiveFaq] = useState(null);
   const { theme, toggleTheme } = useTheme();
+  
+  // Scroll animations
+  const heroVisible = useScrollAnimation('hero-section', 0.1);
+  const valuePropsVisible = useScrollAnimation('value-props', 0.2);
+  const stepsVisible = useScrollAnimation('how-it-works', 0.2);
 
   // Value propositions - honest, no fake numbers
   const valueProps = [
@@ -158,7 +166,37 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* SEO Meta Tags */}
-      <title>Amazon FBA Profit Calculator | Klein-OS</title>
+      <Helmet>
+        <title>Klein OS - Amazon FBA Analytics | Professional Profit Calculator</title>
+        <meta name="description" content="Professional Amazon FBA analytics for serious sellers. Calculate profitability with precision for EU markets. Real-time FBA fees, VAT, and comprehensive analytics dashboard." />
+        <meta name="keywords" content="Amazon FBA calculator, FBA profit calculator, Amazon analytics, EU VAT calculator, FBA fees calculator, Klein OS" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Klein OS - Professional Amazon FBA Analytics" />
+        <meta property="og:description" content="Calculate profitability with precision. Real-time analytics dashboard for serious Amazon sellers." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://klein-os.com" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Klein OS - Amazon FBA Analytics" />
+        <meta name="twitter:description" content="Professional Amazon FBA analytics for serious sellers." />
+        
+        {/* Schema.org for SaaS */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Klein OS",
+            "applicationCategory": "BusinessApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "EUR"
+            }
+          })}
+        </script>
+      </Helmet>
       
       {/* 1. HEADER/NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
@@ -167,8 +205,8 @@ const LandingPage = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
               <div className="text-2xl font-bold tracking-tight">
-                <span className="text-gray-900 dark:text-white">klein</span>
-                <span className="text-blue-600 dark:text-blue-500">-os</span>
+                <span className="text-gray-900 dark:text-white">Klein </span>
+                <span className="text-blue-600 dark:text-blue-500">OS</span>
               </div>
             </Link>
 
@@ -245,34 +283,42 @@ const LandingPage = () => {
       </nav>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section id="hero-section" className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Subtle background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white dark:from-blue-950/20 dark:to-gray-950"></div>
         
         <div className="relative max-w-5xl mx-auto text-center">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
+          <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight transition-all duration-700 ${
+            heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             Professional Amazon FBA<br />
             <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
               Analytics for Serious Sellers
             </span>
           </h1>
           
-          <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className={`text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed transition-all duration-700 delay-100 ${
+            heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             Calculate profitability with precision. No guessing.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 transition-all duration-700 delay-200 ${
+            heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             <Link
               to="/calculator"
-              className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+              className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-102"
+              style={{ transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease' }}
             >
               Try Free Calculator
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
             <Link
               to="/register"
-              className="inline-flex items-center px-8 py-4 border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-600 text-lg font-semibold rounded-lg transition-all"
+              className="inline-flex items-center px-8 py-4 border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-600 text-lg font-semibold rounded-lg transition-all duration-300 hover:scale-102"
+              style={{ transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
               Book Demo
             </Link>
@@ -290,11 +336,17 @@ const LandingPage = () => {
       </section>
 
       {/* 3. VALUE PROP (3 COLUMNS - NO FAKE NUMBERS) */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+      <section id="value-props" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {valueProps.map((prop, index) => (
-              <div key={index} className="bg-white dark:bg-gray-950 p-8 rounded-xl border border-gray-200 dark:border-gray-800">
+              <div 
+                key={index} 
+                className={`bg-white dark:bg-gray-950 p-8 rounded-xl border border-gray-200 dark:border-gray-800 transition-all duration-500 ${
+                  valuePropsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+                style={staggerDelay(index, 150)}
+              >
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center mb-6">
                   <prop.icon className="w-6 h-6 text-blue-600 dark:text-blue-500" />
                 </div>
@@ -311,9 +363,11 @@ const LandingPage = () => {
       </section>
 
       {/* 4. HOW IT WORKS (3-STEP) */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
+          <div className={`text-center mb-16 transition-all duration-700 ${
+            stepsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               How It Works
             </h2>
@@ -324,7 +378,13 @@ const LandingPage = () => {
 
           <div className="space-y-12">
             {steps.map((step, index) => (
-              <div key={index} className="flex items-start gap-6">
+              <div 
+                key={index} 
+                className={`flex items-start gap-6 transition-all duration-500 ${
+                  stepsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+                style={staggerDelay(index, 150)}
+              >
                 <div className="flex-shrink-0">
                   <div className="w-16 h-16 bg-blue-600 text-white rounded-lg flex items-center justify-center text-2xl font-bold">
                     {step.number}
@@ -343,6 +403,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* ANALYTICS DEMO SECTION - NEW */}
+      <AnalyticsDemo />
 
       {/* 5. PRICING SECTION (3 TIERS - HONEST) */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
@@ -543,7 +606,7 @@ const LandingPage = () => {
           
           <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-sm mb-4 sm:mb-0">
-              © 2026 Klein-OS. Hosted in Germany. GDPR-compliant.
+              © 2026 Klein OS. Hosted in Germany. GDPR-compliant.
             </p>
             <p className="text-sm text-gray-500">
               Building transparent tools for Amazon sellers.

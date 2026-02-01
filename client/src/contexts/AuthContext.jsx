@@ -162,46 +162,71 @@ Backend should be at: http://localhost:5002`;
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/v1/auth/login', {
-        email,
-        password
-      });
-
-      const { token: newToken, user: userData } = response.data;
+      console.log('🔐 MVP LOGIN: Using localStorage-based auth');
       
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
-      setUser(userData);
+      // MVP: Simple localStorage-based auth (no backend required)
+      const mockUser = {
+        id: 'demo-user-123',
+        email: email,
+        name: email.split('@')[0],
+        plan: 'free'
+      };
       
-      toast.success('Login successful!');
+      const mockToken = 'demo-token-' + Date.now();
+      
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      setToken(mockToken);
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      
+      toast.success('Login successful! Redirecting to calculator...');
+      
+      // Redirect to calculator
+      setTimeout(() => {
+        window.location.href = '/calculator';
+      }, 500);
+      
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.error || 'Login failed';
-      toast.error(message);
-      return { success: false, error: message };
+      console.error('❌ Login error:', error);
+      toast.error('Login failed. Please try again.');
+      return { success: false, error: error.message };
     }
   };
 
   const register = async (email, password, name) => {
     try {
-      const response = await axios.post('/api/v1/auth/register', {
-        email,
-        password,
-        name
-      });
-
-      const { token: newToken, user: userData } = response.data;
+      console.log('📝 MVP REGISTER: Using localStorage-based auth');
       
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
-      setUser(userData);
+      // MVP: Simple localStorage-based registration (no backend required)
+      const mockUser = {
+        id: 'demo-user-' + Date.now(),
+        email: email,
+        name: name || email.split('@')[0],
+        plan: 'free'
+      };
       
-      toast.success('Registration successful!');
+      const mockToken = 'demo-token-' + Date.now();
+      
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      setToken(mockToken);
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      
+      toast.success('Registration successful! Redirecting to calculator...');
+      
+      // Redirect to calculator
+      setTimeout(() => {
+        window.location.href = '/calculator';
+      }, 500);
+      
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.error || 'Registration failed';
-      toast.error(message);
-      return { success: false, error: message };
+      console.error('❌ Register error:', error);
+      toast.error('Registration failed. Please try again.');
+      return { success: false, error: error.message };
     }
   };
 
