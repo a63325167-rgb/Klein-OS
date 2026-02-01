@@ -40,7 +40,7 @@ const Home = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Pricing Analysis
+          Klein OS Calculator
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
           Comprehensive pricing analysis for your products including Small Package eligibility, shipping costs, 
@@ -55,7 +55,7 @@ const Home = () => {
             <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                🚀 Demo Mode - Try the Pricing Analysis Tool!
+                🚀 Demo Mode - Try the Klein OS Calculator!
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 Enter your product details below to get comprehensive pricing analysis including Small Package eligibility and profit calculations. No login required for demo!
@@ -117,10 +117,10 @@ const Home = () => {
                 <span className="text-2xl">📦</span>
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Ready for Pricing Analysis?
+                Ready to Calculate Profit?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Enter your product details in the form to get started with comprehensive pricing analysis and profit calculations.
+                Enter your product details in the form to get started with comprehensive profit calculations and analytics.
               </p>
             </div>
           )}
@@ -130,7 +130,7 @@ const Home = () => {
       {/* Features section */}
       <div className="mt-16">
         <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">
-          Why Choose Our Pricing Analysis Tool?
+          Why Choose Klein OS?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
@@ -141,7 +141,7 @@ const Home = () => {
               Instant Results
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Get immediate pricing analysis with Small Package eligibility checks and comprehensive profit calculations in seconds.
+              Get immediate profit analysis with Small Package eligibility checks and comprehensive profit calculations in seconds.
             </p>
           </div>
           

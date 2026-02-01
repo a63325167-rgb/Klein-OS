@@ -112,7 +112,7 @@ const Navbar = () => {
                 <span className="text-white font-bold text-sm">K</span>
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Pricing Analysis
+                Klein OS
               </span>
             </Link>
           </div>

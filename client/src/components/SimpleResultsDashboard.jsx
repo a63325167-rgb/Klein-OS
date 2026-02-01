@@ -51,7 +51,7 @@ const SimpleResultsDashboard = ({ result, onReset, onReRun }) => {
           Ready for Analysis?
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Enter your product details to get comprehensive pricing analysis.
+          Enter your product details to get comprehensive profit analysis.
         </p>
       </div>
     );

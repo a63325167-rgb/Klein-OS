@@ -188,7 +188,7 @@ const CalculatorPage = () => {
             <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                🚀 Demo Mode - Try the Pricing Analysis Tool!
+                🚀 Demo Mode - Try the Klein OS Calculator!
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 Enter your product details below to get comprehensive pricing analysis including Small Package eligibility and profit calculations. No login required for demo!
