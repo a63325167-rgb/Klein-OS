@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
@@ -59,13 +60,14 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <ProductsProvider>
-            <Router>
-              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-                <Routes>
+    <HelmetProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SubscriptionProvider>
+            <ProductsProvider>
+              <Router>
+                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+                  <Routes>
                 {/* Landing page without navbar */}
                 <Route path="/" element={
                   <RouteTransition>
@@ -216,6 +218,7 @@ function App() {
         </SubscriptionProvider>
       </AuthProvider>
     </ThemeProvider>
+    </HelmetProvider>
   );
 }
 
