@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FileSpreadsheet, Loader2, CheckCircle } from 'lucide-react';
+import { exportToCSV } from '../../utils/exportCSV.jsx';
 
 /**
  * Export CSV Button Component
@@ -23,8 +24,6 @@ const ExportCSVButton = ({ products, fileName }) => {
     setExportStatus(null);
 
     try {
-      // Dynamically import the export function to avoid bundling issues
-      const { exportToCSV } = await import('../../../src/utils/exportCSV');
       
       // Export CSV (this will trigger download automatically)
       exportToCSV(products, fileName);
