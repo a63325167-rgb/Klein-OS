@@ -1,8 +1,5 @@
 {
-  "buildCommand": "cd client && NODE_OPTIONS='--openssl-legacy-provider' npm run build",
-  "outputDirectory": "client/build",
-  "installCommand": "cd client && npm install --legacy-peer-deps",
-  "env": {
-    "NODE_OPTIONS": "--openssl-legacy-provider"
-  }
+  "buildCommand": "cd client && npm run build",
+  "outputDirectory": "client/dist",
+  "installCommand": "cd client && npm install"
 }
