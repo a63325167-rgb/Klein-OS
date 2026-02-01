@@ -51,24 +51,24 @@ const AnalyticsDemo = () => {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             See What You Get
           </h2>
-          <p className="text-xl text-gray-400">
+          <p className="text-lg sm:text-xl text-gray-400">
             Real-time analytics dashboard preview
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Bar Chart */}
           <motion.div
-            className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg hover:border-blue-500 transition-all duration-300"
+            className="bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-700 shadow-lg hover:border-blue-500 transition-all duration-300"
             initial={{ opacity: 0, y: 30 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <h3 className="text-lg font-bold text-white mb-4">Profit by Product</h3>
-            <ResponsiveContainer width="100%" height={280}>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-4">Profit by Product</h3>
+            <ResponsiveContainer width="100%" height={250} minHeight={250}>
               <BarChart data={profitData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.2} />
                 <XAxis dataKey="name" tick={{ fill: '#9ca3af', fontSize: 12 }} />
@@ -85,13 +85,13 @@ const AnalyticsDemo = () => {
 
           {/* Pie Chart */}
           <motion.div
-            className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg hover:border-blue-500 transition-all duration-300"
+            className="bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-700 shadow-lg hover:border-blue-500 transition-all duration-300"
             initial={{ opacity: 0, y: 30 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h3 className="text-lg font-bold text-white mb-4">ROI Distribution</h3>
-            <ResponsiveContainer width="100%" height={280}>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-4">ROI Distribution</h3>
+            <ResponsiveContainer width="100%" height={250} minHeight={250}>
               <PieChart>
                 <Pie
                   data={roiData}
@@ -128,13 +128,13 @@ const AnalyticsDemo = () => {
 
           {/* Line Chart */}
           <motion.div
-            className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg hover:border-blue-500 transition-all duration-300"
+            className="bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-700 shadow-lg hover:border-blue-500 transition-all duration-300"
             initial={{ opacity: 0, y: 30 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h3 className="text-lg font-bold text-white mb-4">Monthly Trend</h3>
-            <ResponsiveContainer width="100%" height={280}>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-4">Monthly Trend</h3>
+            <ResponsiveContainer width="100%" height={250} minHeight={250}>
               <AreaChart data={trendData}>
                 <defs>
                   <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">

@@ -33,7 +33,7 @@ const ValueProps = () => {
   return (
     <section ref={ref} className="py-20 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
           {valueProps.map((prop, index) => (
             <motion.div
               key={index}
@@ -46,7 +46,7 @@ const ValueProps = () => {
                 ease: [0.16, 1, 0.3, 1]
               }}
             >
-              <div className="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 hover:shadow-lg">
+              <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 hover:shadow-lg">
                 {/* Icon with animation */}
                 <motion.div
                   className="w-14 h-14 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center mb-6 group-hover:bg-blue-500 dark:group-hover:bg-blue-600 transition-colors duration-300"
@@ -61,7 +61,7 @@ const ValueProps = () => {
                   <prop.icon className="w-7 h-7 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors duration-300" />
                 </motion.div>
 
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
                   {prop.title}
                 </h3>
                 

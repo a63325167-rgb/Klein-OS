@@ -51,10 +51,10 @@ const FAQ = () => {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
             Honest answers to real concerns
           </p>
         </motion.div>

@@ -43,10 +43,10 @@ const HowItWorks = () => {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             How It Works
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
             Simple, straightforward, no hype
           </p>
         </motion.div>
@@ -56,7 +56,7 @@ const HowItWorks = () => {
           {steps.map((step, index) => (
             <div key={index} className="relative">
               <motion.div
-                className="flex items-start gap-8 mb-12 last:mb-0"
+                className="flex items-start gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12 last:mb-0"
                 initial={{ opacity: 0, x: -30 }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{
@@ -68,7 +68,7 @@ const HowItWorks = () => {
                 {/* Icon + Number */}
                 <div className="flex-shrink-0">
                   <motion.div
-                    className="relative w-20 h-20 bg-blue-600 rounded-xl flex items-center justify-center"
+                    className="relative w-16 h-16 sm:w-20 sm:h-20 bg-blue-600 rounded-xl flex items-center justify-center"
                     initial={{ scale: 0, rotate: -180 }}
                     animate={inView ? { scale: 1, rotate: 0 } : {}}
                     transition={{
@@ -77,7 +77,7 @@ const HowItWorks = () => {
                       ease: [0.16, 1, 0.3, 1]
                     }}
                   >
-                    <step.icon className="w-10 h-10 text-white" />
+                    <step.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-xs font-bold text-white dark:text-gray-900">
                       {step.number}
                     </div>
@@ -86,10 +86,10 @@ const HowItWorks = () => {
 
                 {/* Content */}
                 <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-lg text-gray-600 dark:text-gray-400">
+                  <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
                     {step.description}
                   </p>
                 </div>
@@ -98,7 +98,7 @@ const HowItWorks = () => {
               {/* Connector Line (SVG) */}
               {index < steps.length - 1 && (
                 <motion.div
-                  className="absolute left-10 top-20 w-0.5 h-16 bg-gradient-to-b from-blue-600 to-blue-400 origin-top"
+                  className="absolute left-8 sm:left-10 top-16 sm:top-20 w-0.5 h-12 sm:h-16 bg-gradient-to-b from-blue-600 to-blue-400 origin-top"
                   initial={{ scaleY: 0 }}
                   animate={inView ? { scaleY: 1 } : {}}
                   transition={{

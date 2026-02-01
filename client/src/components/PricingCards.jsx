@@ -86,7 +86,7 @@ const PricingCards = () => {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {pricingTiers.map((tier, index) => (
             <motion.div
               key={index}
@@ -102,8 +102,8 @@ const PricingCards = () => {
               <div
                 className={`relative bg-white dark:bg-gray-800 rounded-2xl h-full flex flex-col ${
                   tier.highlighted
-                    ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/20 transform scale-105 pt-12 px-8 pb-8'
-                    : 'border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl p-8'
+                    ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/20 lg:transform lg:scale-105 pt-12 px-6 pb-8 md:px-8'
+                    : 'border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl p-6 md:p-8'
                 } transition-all duration-300`}
               >
                 {/* Badge */}
@@ -131,7 +131,7 @@ const PricingCards = () => {
                     {tier.name}
                   </h3>
                   <div className="mb-2">
-                    <span className="text-5xl font-bold text-gray-900 dark:text-white">
+                    <span className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white">
                       {tier.price}
                     </span>
                     {tier.period !== 'Forever' && tier.period !== 'Contact sales' && (

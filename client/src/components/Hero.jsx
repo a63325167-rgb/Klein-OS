@@ -166,7 +166,7 @@ const Hero = () => {
           {/* Left Column - Copy */}
           <div className="text-left">
             <motion.h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -175,7 +175,7 @@ const Hero = () => {
             </motion.h1>
             
             <motion.p
-              className="text-xl sm:text-2xl text-gray-300 mb-4 leading-relaxed"
+              className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
@@ -201,7 +201,7 @@ const Hero = () => {
             >
               <Link
                 to="/calculator"
-                className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg transition-all hover:scale-102 hover:shadow-lg hover:shadow-blue-500/50"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-semibold rounded-lg transition-all hover:scale-102 hover:shadow-lg hover:shadow-blue-500/50"
                 style={{ transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
               >
                 Start Free Calculator
@@ -210,7 +210,7 @@ const Hero = () => {
               
               <a
                 href="#demo"
-                className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-600 text-gray-300 hover:bg-gray-800 hover:border-gray-500 text-lg font-semibold rounded-lg transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-gray-600 text-gray-300 hover:bg-gray-800 hover:border-gray-500 text-base sm:text-lg font-semibold rounded-lg transition-all group"
               >
                 <Play className="mr-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 Watch 2min Demo
@@ -218,9 +218,9 @@ const Hero = () => {
             </motion.div>
           </div>
 
-          {/* Right Column - Dashboard Mockup */}
+          {/* Right Column - Dashboard Mockup (Hidden on mobile) */}
           <motion.div
-            className="relative"
+            className="relative hidden lg:block"
             initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             transition={{ duration: 1, delay: 1 }}

@@ -23,7 +23,7 @@ const FinalCTA = () => {
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Headline */}
         <motion.h2
-          className="text-4xl sm:text-5xl font-bold text-white mb-4"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
@@ -32,7 +32,7 @@ const FinalCTA = () => {
         </motion.h2>
 
         <motion.p
-          className="text-xl text-gray-300 mb-10"
+          className="text-lg sm:text-xl text-gray-300 mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -49,7 +49,7 @@ const FinalCTA = () => {
         >
           <Link
             to="/calculator"
-            className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg transition-all hover:scale-102 hover:shadow-lg hover:shadow-blue-500/50"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-semibold rounded-lg transition-all hover:scale-102 hover:shadow-lg hover:shadow-blue-500/50"
             style={{ transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             Start Free Now
@@ -58,7 +58,7 @@ const FinalCTA = () => {
           
           <a
             href="mailto:sales@klein-os.com"
-            className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-600 text-gray-200 hover:bg-gray-800 hover:border-gray-500 text-lg font-semibold rounded-lg transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-gray-600 text-gray-200 hover:bg-gray-800 hover:border-gray-500 text-base sm:text-lg font-semibold rounded-lg transition-all"
           >
             <Calendar className="mr-2 w-5 h-5" />
             Schedule Demo
