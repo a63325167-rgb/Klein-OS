@@ -1,5 +1,10 @@
 {
   "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/build",
-  "installCommand": "cd client && npm install --legacy-peer-deps"
+  "installCommand": "cd client && npm install --legacy-peer-deps",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
 }
