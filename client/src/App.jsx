@@ -9,7 +9,7 @@ import { ProductsProvider } from './contexts/ProductsContext';
 import Navbar from './components/Navbar';
 import RouteTransition from './components/RouteTransition';
 import Breadcrumb from './components/Breadcrumb';
-import LandingPage from './pages/LandingPage';
+import LandingPage from './pages/LandingPageNew';
 import CalculatorPage from './pages/CalculatorPage';
 import PortfolioPage from './pages/PortfolioPage';
 import Dashboard from './pages/Dashboard';
