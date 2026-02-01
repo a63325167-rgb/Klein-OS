@@ -12,18 +12,18 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       <Helmet>
-        <title>Klein OS - Professional Amazon FBA Analytics | €0, €49, Custom Pricing</title>
-        <meta name="description" content="Professional Amazon FBA analytics for serious sellers. Calculate profit with precision. Used by sellers managing €100K+ in annual revenue. Honest pricing: €0 Free, €49 Pro, Custom Enterprise." />
-        <meta name="keywords" content="Amazon FBA calculator, FBA profit calculator, Amazon analytics, EU VAT calculator, FBA fees calculator, Klein OS, professional FBA tools" />
+        <title>Klein OS - Financial Analytics for Amazon, eBay & Shopify | €0, €49, Custom</title>
+        <meta name="description" content="E-commerce financial analytics for Amazon, eBay, and Shopify sellers. Calculate profit, fees, VAT, and shipping costs with precision. Used by sellers managing €100K+ revenue. Pricing: €0 Free, €49 Pro, Custom Enterprise." />
+        <meta name="keywords" content="Amazon profit calculator, eBay fee calculator, Shopify analytics, e-commerce financial tools, FBA calculator, online seller tools, EU VAT calculator, Klein OS" />
         
-        <meta property="og:title" content="Klein OS - Professional Amazon FBA Analytics" />
-        <meta property="og:description" content="Stop guessing. Calculate profit with precision. Real-time FBA fees, VAT, and comprehensive analytics dashboard." />
+        <meta property="og:title" content="Klein OS - E-Commerce Financial Analytics" />
+        <meta property="og:description" content="Financial analytics for Amazon, eBay & Shopify. Calculate profit with precision. Real-time fees, VAT, shipping, and comprehensive analytics dashboard." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://klein-os.com" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Klein OS - Amazon FBA Analytics" />
-        <meta name="twitter:description" content="Professional Amazon FBA analytics for serious sellers." />
+        <meta name="twitter:title" content="Klein OS - E-Commerce Financial Analytics" />
+        <meta name="twitter:description" content="Financial analytics for Amazon, eBay & Shopify sellers. Calculate profit with precision." />
         
         <script type="application/ld+json">
           {JSON.stringify({

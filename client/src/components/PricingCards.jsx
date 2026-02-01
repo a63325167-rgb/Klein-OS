@@ -100,21 +100,21 @@ const PricingCards = () => {
               }}
             >
               <div
-                className={`relative bg-white dark:bg-gray-800 rounded-2xl p-8 h-full flex flex-col ${
+                className={`relative bg-white dark:bg-gray-800 rounded-2xl h-full flex flex-col ${
                   tier.highlighted
-                    ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/20 transform scale-105'
-                    : 'border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl'
+                    ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/20 transform scale-105 pt-12 px-8 pb-8'
+                    : 'border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl p-8'
                 } transition-all duration-300`}
               >
                 {/* Badge */}
                 {tier.badge && (
                   <motion.div
-                    className="absolute -top-4 left-1/2 transform -translate-x-1/2"
+                    className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10"
                     initial={{ scale: 0, rotate: -180 }}
                     animate={inView ? { scale: 1, rotate: 0 } : {}}
                     transition={{ duration: 0.6, delay: tier.delay + 0.2 }}
                   >
-                    <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg animate-pulse">
+                    <span className="inline-block bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xl whitespace-nowrap">
                       {tier.badge}
                     </span>
                   </motion.div>

@@ -69,7 +69,7 @@ const Login = () => {
     setIsLoading(false);
 
     if (result.success) {
-      navigate(from, { replace: true });
+      navigate('/calculator', { replace: true });
     }
   };
 

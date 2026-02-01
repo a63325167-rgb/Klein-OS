@@ -171,7 +171,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              Professional Amazon FBA Analytics
+              Financial Analytics for E-Commerce
             </motion.h1>
             
             <motion.p
@@ -180,7 +180,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              Stop guessing. Calculate profit with precision.
+              Amazon, eBay & Shopify profit calculator. Stop guessing.
             </motion.p>
 
             <motion.p
@@ -189,7 +189,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              Used by sellers managing €100K+ in annual revenue
+              Trusted by online sellers managing €100K+ in annual revenue
             </motion.p>
 
             {/* CTA Buttons */}

@@ -180,12 +180,7 @@ Backend should be at: http://localhost:5002`;
       setUser(mockUser);
       setIsAuthenticated(true);
       
-      toast.success('Login successful! Redirecting to calculator...');
-      
-      // Redirect to calculator
-      setTimeout(() => {
-        window.location.href = '/calculator';
-      }, 500);
+      toast.success('Login successful!');
       
       return { success: true };
     } catch (error) {
@@ -215,12 +210,7 @@ Backend should be at: http://localhost:5002`;
       setUser(mockUser);
       setIsAuthenticated(true);
       
-      toast.success('Registration successful! Redirecting to calculator...');
-      
-      // Redirect to calculator
-      setTimeout(() => {
-        window.location.href = '/calculator';
-      }, 500);
+      toast.success('Registration successful!');
       
       return { success: true };
     } catch (error) {
