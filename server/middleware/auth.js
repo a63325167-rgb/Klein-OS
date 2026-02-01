@@ -7,6 +7,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-change-in-producti
  * Middleware to authenticate JWT tokens
  */
 const authenticateToken = (req, res, next) => {
+  // DEV MODE: Bypass auth entirely for development
+  if (process.env.DEV_MODE === 'true' || process.env.NODE_ENV === 'development') {
+    console.log('🔧 DEV MODE: Auth bypass enabled');
+    req.user = { 
+      id: 1, 
+      email: 'admin@kleinpaket.com',
+      plan: 'pro',
+      name: 'Demo Admin'
+    };
+    return next();
+  }
+
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 

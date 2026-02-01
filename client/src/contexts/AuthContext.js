@@ -15,6 +15,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
   // Configure axios defaults
@@ -25,6 +26,120 @@ export const AuthProvider = ({ children }) => {
       delete axios.defaults.headers.common['Authorization'];
     }
   }, [token]);
+
+  // DEV MODE: Bulletproof auto-login for development
+  useEffect(() => {
+    const initAuth = async () => {
+      // Skip in production
+      if (process.env.NODE_ENV === 'production') return;
+
+      console.log('🔧 DEV MODE: Initializing authentication...');
+
+      // Check if we already have a valid token
+      const existingToken = localStorage.getItem('token');
+      if (existingToken) {
+        console.log('✅ DEV MODE: Token exists, verifying...');
+        
+        // Set axios header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+        
+        // Try to verify token is still valid
+        try {
+          const response = await axios.get('/api/v1/auth/profile');
+          if (response.data && response.data.user) {
+            setUser(response.data.user);
+            setIsAuthenticated(true);
+            setToken(existingToken);
+            console.log('✅ DEV MODE: Existing token valid, logged in as', response.data.user.email);
+            toast.success(`🔧 DEV MODE: Logged in as ${response.data.user.email}`);
+            return; // Success, exit early
+          }
+        } catch (error) {
+          console.log('⚠️ Token invalid or expired, will login again...');
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+        }
+      }
+
+      // No valid token, perform login
+      console.log('🔐 DEV MODE: Attempting auto-login...');
+
+      try {
+        const response = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'admin@kleinpaket.com',
+            password: 'admin123'
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ Auto-login failed:', response.status, errorText);
+          
+          // Show detailed error message
+          const errorMsg = `⚠️ DEV MODE: Backend login failed (${response.status})
+
+Possible causes:
+1. Backend not running on port 5002
+2. admin@kleinpaket.com user doesn't exist in database
+3. Password hash mismatch
+
+Check terminal for backend logs.
+Run: npm run dev`;
+          
+          console.error(errorMsg);
+          toast.error(`Auto-login failed (${response.status}). Check console for details.`);
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.token && data.user) {
+          // Save token
+          localStorage.setItem('token', data.token);
+          setToken(data.token);
+          
+          // Update state
+          setUser(data.user);
+          setIsAuthenticated(true);
+          
+          // Set axios default header
+          axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+          
+          console.log('✅ DEV MODE: Successfully logged in as', data.user.email);
+          console.log('🎟️ Token:', data.token.substring(0, 20) + '...');
+          toast.success(`🔧 DEV MODE: Logged in as ${data.user.email}`);
+        } else {
+          console.error('❌ Login response missing token or user:', data);
+          toast.error('⚠️ Backend returned incomplete data. Check server logs.');
+        }
+
+      } catch (error) {
+        console.error('❌ DEV MODE Auto-login error:', error.message);
+        
+        if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+          const errorMsg = `⚠️ Cannot connect to backend
+
+Error: ${error.message}
+
+Make sure backend is running:
+Terminal: npm run dev
+
+Backend should be at: http://localhost:5002`;
+          
+          console.error(errorMsg);
+          toast.error('Cannot connect to backend. Check console for details.');
+        } else {
+          console.error(`⚠️ Unexpected error: ${error.message}`);
+          toast.error(`Unexpected error: ${error.message}`);
+        }
+      }
+    };
+
+    initAuth();
+  }, []);
 
   // Check if user is logged in on app start
   useEffect(() => {
@@ -94,6 +209,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setIsAuthenticated(false);
     delete axios.defaults.headers.common['Authorization'];
     toast.success('Logged out successfully');
   };
@@ -150,7 +266,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated,
     login,
     register,
     logout,

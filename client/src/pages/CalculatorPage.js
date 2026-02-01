@@ -2,12 +2,18 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { saveToPortfolio } from '../utils/portfolioStorage';
 import ProductForm from '../components/ProductForm';
 import EnhancedResultsDashboard from '../components/analytics/EnhancedResultsDashboard';
 import PlatformSelector from '../components/PlatformSelector';
+import ValidationWarnings from '../components/ValidationWarnings';
 import { calculateProductAnalysis } from '../utils/simpleCalculator';
 import { normalizeCalculationInput } from '../utils/calculationAdapter';
+import { validateAllInputs, hasBlockingErrors } from '../utils/inputValidation';
 import { Info, Calculator } from 'lucide-react';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import '../components/PlatformSelector.css';
 
 const CalculatorPage = () => {
@@ -15,6 +21,7 @@ const CalculatorPage = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [platformData, setPlatformData] = useState(null);
   const [usePlatformMode, setUsePlatformMode] = useState(false);
+  const [validationWarnings, setValidationWarnings] = useState([]);
   const { isAuthenticated } = useAuth();
   const { currentPlan } = useSubscription();
 
@@ -23,6 +30,9 @@ const CalculatorPage = () => {
     console.log('🔍 Calculation started with data:', productData);
     console.log('🔍 Platform mode:', usePlatformMode);
     console.log('🔍 Platform data:', platformData);
+    
+    // Clear previous warnings
+    setValidationWarnings([]);
     
     try {
       // Check if platform mode is enabled and platform data is provided
@@ -49,15 +59,49 @@ const CalculatorPage = () => {
         console.log('📝 Using standard form data (platform mode disabled or no platform data)');
       }
       
-      // For demo mode, we'll calculate locally without API call
+      // Validate inputs before calculation
+      const inputWarnings = validateAllInputs(normalizedData);
+      
+      // Check for blocking errors
+      if (hasBlockingErrors(inputWarnings)) {
+        console.log('❌ Validation failed with blocking errors');
+        setValidationWarnings(inputWarnings);
+        toast.error('Please fix validation errors before calculating');
+        setIsCalculating(false);
+        return;
+      }
+      
+      // Calculate locally first
       const result = calculateLocalAnalysis(normalizedData);
       console.log('✅ Calculation result:', result);
       setCalculationResult(result);
+      
+      // Validate result (profit margin, ROI, etc.)
+      const resultWarnings = validateAllInputs(normalizedData, result);
+      setValidationWarnings(resultWarnings);
+      
+      // Show critical warnings
+      const criticalWarnings = resultWarnings.filter(w => w.severity === 'error');
+      if (criticalWarnings.length > 0) {
+        toast.error(criticalWarnings[0].message);
+      }
+
+      // Save to database in background (non-blocking)
+      saveCalculationToDatabase(normalizedData, result).catch(err => {
+        console.log('Background save failed (non-critical):', err);
+      });
+      
+      // Save to portfolio (local storage)
+      try {
+        saveToPortfolio(result);
+        console.log('✅ Product saved to portfolio');
+      } catch (err) {
+        console.log('⚠️ Failed to save to portfolio:', err);
+      }
     } catch (error) {
       console.error('❌ Calculation error:', error);
       console.error('Error details:', error.message);
-      alert(`Calculation failed: ${error.message}`);
-      // Handle error (you might want to show a toast notification)
+      toast.error(`Calculation failed: ${error.message}`);
     } finally {
       setIsCalculating(false);
     }
@@ -69,6 +113,49 @@ const CalculatorPage = () => {
     const result = calculateProductAnalysis(productData);
     console.log('📊 Raw calculation result:', result);
     return result;
+  };
+
+  // Save calculation to database
+  const saveCalculationToDatabase = async (inputData, outputData) => {
+    // Retrieve auth token (if user is logged in)
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      console.log('⚠️ User not logged in - calculation not saved');
+      return;
+    }
+
+    try {
+      console.log('💾 Saving calculation to database...');
+      const response = await axios.post('/api/v1/calculate/analyze', {
+        product_name: inputData.product_name || inputData.productName || 'Unnamed Product',
+        category: inputData.category || 'General',
+        buying_price: parseFloat(inputData.buying_price || inputData.buyingPrice || 0),
+        selling_price: parseFloat(inputData.selling_price || inputData.sellingPrice || 0),
+        destination_country: inputData.destination_country || inputData.destinationCountry || 'Germany',
+        length_cm: parseFloat(inputData.length_cm || inputData.length || 0),
+        width_cm: parseFloat(inputData.width_cm || inputData.width || 0),
+        height_cm: parseFloat(inputData.height_cm || inputData.height || 0),
+        weight_kg: parseFloat(inputData.weight_kg || inputData.weight || 0)
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data && response.data.calculation_id) {
+        console.log('✅ Calculation saved with ID:', response.data.calculation_id);
+        toast.success('✅ Calculation saved successfully!');
+        return response.data.calculation_id;
+      }
+    } catch (error) {
+      console.error('❌ Failed to save calculation:', error);
+      if (error.response?.status === 401) {
+        toast.error('⚠️ Please log in to save calculations.');
+      } else {
+        toast.error('⚠️ Failed to save calculation. Please try again.');
+      }
+    }
   };
 
   const handlePlatformChange = (data) => {
@@ -83,17 +170,16 @@ const CalculatorPage = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-4xl font-bold text-slate-800 dark:text-white mb-3">
-          Business Intelligence Calculator
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-          Advanced analytics dashboard with AI-powered insights, interactive visualizations, and comprehensive 
-          business intelligence for data-driven decision making.
-        </p>
-      </div>
+    <DashboardLayout>
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-white">Profitability Analysis</h1>
+          <p className="text-gray-400 mt-1">Compare platforms and optimize your margins</p>
+        </div>
+        
+        {/* Calculator Content */}
+        <div className="calculator-content">
 
       {/* Demo mode banner */}
       {!isAuthenticated && (
@@ -123,6 +209,13 @@ const CalculatorPage = () => {
               </h3>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Validation Warnings */}
+      {validationWarnings.length > 0 && (
+        <div className="mb-6">
+          <ValidationWarnings warnings={validationWarnings} />
         </div>
       )}
 
@@ -307,7 +400,9 @@ const CalculatorPage = () => {
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

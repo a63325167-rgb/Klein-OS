@@ -21,15 +21,25 @@ import InsightFeed from './InsightFeed';
 import BulkUploader from './BulkUploader';
 import RecommendationCard from './RecommendationCard';
 import ActionsPanel from './ActionsPanel';
+import ProductHealthScoreCard from './ProductHealthScoreCard';
+import RiskAssessmentCard from './RiskAssessmentCard';
+import CashFlowTimeline from './CashFlowTimeline';
+import BenchmarkComparisons from './BenchmarkComparisons';
+import ScenarioCalculator from './ScenarioCalculator';
+import ExportPDFButton from './ExportPDFButton';
+import ExportCSVButton from './ExportCSVButton';
+import { H1, H3, Caption, MetricDisplay, BodySmall } from '../ui/Typography';
 import {
   analyzePerformanceTier,
   generateInsights,
   generateRecommendations,
   generateChartData
 } from '../../utils/businessIntelligence';
+import { generateCashFlowProjection } from '../../utils/cashFlowProjection';
 
 const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [analyticsView, setAnalyticsView] = useState('performance');
   const [copied, setCopied] = useState(false);
   const [vatBreakdownExpanded, setVatBreakdownExpanded] = useState(false);
 
@@ -79,6 +89,15 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
     } catch (error) {
       console.error('Error analyzing performance tier:', error);
       return { tier: 'UNKNOWN', emoji: '❓', color: 'gray', description: 'Unable to analyze performance' };
+    }
+  }, [safeResult]);
+
+  const cashFlowProjection = useMemo(() => {
+    try {
+      return generateCashFlowProjection(safeResult);
+    } catch (error) {
+      console.error('Error generating cash flow projection:', error);
+      return { months: [] };
     }
   }, [safeResult]);
 
@@ -179,8 +198,6 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'charts', label: 'Analytics', icon: PieChart },
-    { id: 'insights', label: 'Intelligence', icon: Lightbulb },
-    { id: 'bulk', label: 'Bulk Upload', icon: FileSpreadsheet },
     { id: 'recommendations', label: 'Actions', icon: Target }
   ];
 
@@ -197,7 +214,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-transparent to-blue-50 dark:from-blue-950 dark:via-transparent dark:to-blue-950" />
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -210,13 +227,13 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                 <Sparkles className="w-10 h-10 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-slate-800 dark:text-white">
+                <H1>
                   Business Intelligence Dashboard
-                </h1>
+                </H1>
                 <div className="flex items-center gap-3 mt-2">
-                  <p className="text-slate-600 dark:text-slate-400">
+                  <BodySmall as="p">
                     Advanced analytics & insights for {safeResult.input.product_name}
-                  </p>
+                  </BodySmall>
                   {safeResult.timestamp && (
                     <div className="flex items-center gap-1.5 text-xs bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
                       <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400" />
@@ -231,6 +248,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
 
             {/* Action buttons */}
             <div className="flex gap-3">
+              <ExportPDFButton result={result} userName="Demo User" />
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -272,37 +290,7 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
             </div>
           </div>
 
-          {/* Small Package status banner */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className={`border-2 rounded-xl p-4 ${
-              safeResult.smallPackageCheck.isEligible
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
-                : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              {safeResult.smallPackageCheck.isEligible ? (
-                <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-              ) : (
-                <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-              )}
-              <div className="flex-1">
-                <p className={`font-semibold ${
-                  safeResult.smallPackageCheck.isEligible ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
-                }`}>
-                  {safeResult.smallPackageCheck.message}
-                </p>
-                {!safeResult.smallPackageCheck.isEligible && safeResult.smallPackageCheck.failures && (
-                  <p className="text-sm text-gray-400 mt-1">
-                    Issues: {safeResult.smallPackageCheck.failures.join(', ')}
-                  </p>
-                )}
-              </div>
-            </div>
-          </motion.div>
+          {/* Small Package status removed - moved to Actions tab */}
         </motion.div>
 
         {/* Tab navigation */}
@@ -310,23 +298,27 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="flex gap-2 mb-8 overflow-x-auto pb-2"
+          role="tablist"
+          className="flex gap-1 mb-8 overflow-x-auto border-b-2 border-slate-200 dark:border-slate-700"
         >
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
             return (
               <motion.button
                 key={tab.id}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.05 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-blue-600 dark:bg-blue-600 text-white shadow-lg'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
+                tabIndex={isActive ? 0 : -1}
+                className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all duration-200 whitespace-nowrap border-b-2 -mb-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                  isActive
+                    ? 'border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -340,6 +332,9 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
+            role="tabpanel"
+            id={`panel-${activeTab}`}
+            aria-labelledby={`tab-${activeTab}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -347,79 +342,117 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
           >
             {/* Overview Tab */}
             {activeTab === 'overview' && (
-              <div className="space-y-6">
-                {/* KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-8">
+                {/* Primary KPI Cards - Focus on what matters */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg"
+                    whileHover={{ scale: 1.02 }}
+                    className="h-40 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-6 shadow-xl flex flex-col justify-center"
                   >
-                    <div className="text-sm text-blue-600 dark:text-blue-400 mb-2 font-medium">Revenue</div>
-                    <div className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
-                      {formatCurrency(safeResult.input.selling_price)}
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Per unit</div>
+                    <Caption uppercase className="text-green-700 dark:text-green-400 mb-2">Net Profit</Caption>
+                    <MetricDisplay size="small" className="text-green-800 dark:text-green-200 mb-1">
+                      {formatCurrency(safeResult.totals.net_profit)}
+                    </MetricDisplay>
+                    <Caption className="text-green-600 dark:text-green-400">After all costs</Caption>
                   </motion.div>
 
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2 }}
-                    whileHover={{ scale: 1.05 }}
-                    className={`bg-white dark:bg-slate-800 ${
+                    whileHover={{ scale: 1.02 }}
+                    className={`h-40 bg-gradient-to-br ${
                       safeResult.totals.profit_margin >= 20
-                        ? 'border-green-300 dark:border-green-700'
-                        : 'border-yellow-300 dark:border-yellow-700'
-                    } border rounded-xl p-6 shadow-lg`}
+                        ? 'from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 border-blue-300 dark:border-blue-700'
+                        : 'from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/20 border-yellow-300 dark:border-yellow-700'
+                    } border-2 rounded-2xl p-6 shadow-xl flex flex-col justify-center`}
                   >
-                    <div className={`text-sm mb-2 font-medium ${getMarginColor(safeResult.totals.profit_margin)}`}>
+                    <Caption uppercase className={`mb-2 ${
+                      safeResult.totals.profit_margin >= 20
+                        ? 'text-blue-700 dark:text-blue-400'
+                        : 'text-yellow-700 dark:text-yellow-400'
+                    }`}>
                       Profit Margin
-                    </div>
-                    <div className={`text-3xl font-bold ${getMarginColor(safeResult.totals.profit_margin)} mb-1`}>
+                    </Caption>
+                    <MetricDisplay size="small" className={`mb-1 ${
+                      safeResult.totals.profit_margin >= 20
+                        ? 'text-blue-800 dark:text-blue-200'
+                        : 'text-yellow-800 dark:text-yellow-200'
+                    }`}>
                       {safeResult.totals.profit_margin.toFixed(1)}%
-                    </div>
-                    <div className="text-xs text-gray-400">
+                    </MetricDisplay>
+                    <Caption className={`${
+                      safeResult.totals.profit_margin >= 20
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-yellow-600 dark:text-yellow-400'
+                    }`}>
                       {performanceTier.tier} performance
+                    </Caption>
+                  </motion.div>
+                  
+                  {/* Product Health Score Card */}
+                  <ProductHealthScoreCard result={result} />
+                  
+                  {/* Risk Assessment Card */}
+                  <RiskAssessmentCard result={result} />
+                </div>
+
+                {/* Secondary Metrics - Smaller cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="h-24 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow flex flex-col justify-center"
+                  >
+                    <Caption uppercase className="mb-1">Revenue</Caption>
+                    <div className="text-2xl font-bold text-slate-800 dark:text-white">
+                      {formatCurrency(safeResult.input.selling_price)}
                     </div>
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="h-24 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow flex flex-col justify-center"
                   >
-                    <div className="text-sm text-blue-600 dark:text-blue-400 mb-2 font-medium">ROI</div>
-                    <div className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+                    <Caption uppercase className="mb-1">ROI</Caption>
+                    <div className="text-2xl font-bold text-slate-800 dark:text-white">
                       {safeResult.totals.roi_percent.toFixed(1)}%
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Return on investment</div>
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="h-24 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow flex flex-col justify-center"
                   >
-                    <div className="text-sm text-blue-600 dark:text-blue-400 mb-2 font-medium">Net Profit</div>
-                    <div className="text-3xl font-bold text-slate-800 dark:text-white mb-1">
-                      {formatCurrency(safeResult.totals.net_profit)}
+                    <Caption uppercase className="mb-1">Total Costs</Caption>
+                    <div className="text-2xl font-bold text-slate-800 dark:text-white">
+                      {formatCurrency(safeResult.totals.total_cost)}
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">After all costs</div>
                   </motion.div>
                 </div>
+
+                {/* Scenario Calculator */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <ScenarioCalculator result={result} />
+                </motion.div>
 
                 {/* VAT Information Card */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.7 }}
                   className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-6 shadow-lg"
                 >
                   <div className="flex items-center gap-3 mb-4">
@@ -430,16 +463,6 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                   </div>
                   
                   <div className="space-y-3">
-                    {/* Debug Information - Remove after testing */}
-                    {process.env.NODE_ENV === 'development' && (
-                      <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-xs">
-                        <strong>Debug:</strong> Seller: {safeResult.input.seller_country || safeResult.input.destination_country}, 
-                        Buyer: {safeResult.input.buyer_country || safeResult.input.destination_country}, 
-                        Storage: {safeResult.input.storage_country}, 
-                        Fulfillment: {safeResult.input.fulfillment_method || 'FBA'}, 
-                        Type: {safeResult.input.transaction_type || 'B2C'}
-                      </div>
-                    )}
                     
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-700 dark:text-blue-300">Applicable Rate</span>
@@ -643,10 +666,10 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                   </div>
                 </motion.div>
 
-                {/* Cost breakdown */}
+                {/* Cost breakdown - Simplified */}
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Financial Breakdown</h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600 dark:text-slate-400">Buying Price</span>
                       <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.input.buying_price)}</span>
@@ -659,114 +682,95 @@ const EnhancedResultsDashboard = ({ result, onReset, onReRun }) => {
                       <span className="text-slate-600 dark:text-slate-400">Shipping ({safeResult.shipping.type || 'Standard'})</span>
                       <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.shipping.net || safeResult.shipping.cost)}</span>
                     </div>
-                    
-                    {/* VAT Breakdown - Expandable EU Methodology */}
-                    <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mt-3">
-                      <button
-                        onClick={() => setVatBreakdownExpanded(!vatBreakdownExpanded)}
-                        className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                            VAT Breakdown ({safeResult.vat.rate}%)
-                          </span>
-                          <div className="group relative">
-                            <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 cursor-help" />
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                              In EU, you collect VAT from customers but can reclaim VAT paid on business expenses. Net VAT Liability is what you actually remit to tax authorities.
-                            </div>
-                          </div>
-                        </div>
-                        <motion.div
-                          animate={{ rotate: vatBreakdownExpanded ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                        </motion.div>
-                      </button>
-                      
-                      <AnimatePresence>
-                        {vatBreakdownExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="mt-3 space-y-2 pl-3">
-                              {/* Debug Information - Remove after testing */}
-                              {process.env.NODE_ENV === 'development' && (
-                                <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-xs mb-3">
-                                  <strong>VAT Debug:</strong><br/>
-                                  Output VAT: €{safeResult.vat.outputVAT?.toFixed(2) || 0}<br/>
-                                  Input VAT COGS: -€{safeResult.vat.inputVAT_COGS?.toFixed(2) || 0}<br/>
-                                  Input VAT Fees: -€{safeResult.vat.inputVAT_AmazonFee?.toFixed(2) || 0}<br/>
-                                  Input VAT Shipping: -€{safeResult.vat.inputVAT_Shipping?.toFixed(2) || 0}<br/>
-                                  Input VAT Return: -€{safeResult.vat.inputVAT_ReturnBuffer?.toFixed(2) || 0}<br/>
-                                  <strong>Net VAT: €{safeResult.vat.netVATLiability?.toFixed(2) || 0}</strong>
-                                </div>
-                              )}
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">Output VAT (collected from customer)</span>
-                                <span className="text-sm text-slate-800 dark:text-white font-medium">{formatCurrency(safeResult.vat.outputVAT || 0)}</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on COGS)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_COGS || 0)}</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on Amazon fees)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_AmazonFee || 0)}</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on shipping)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_Shipping || 0)}</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">Input VAT (reclaimable on return buffer)</span>
-                                <span className="text-sm text-green-600 dark:text-green-400 font-medium">-{formatCurrency(safeResult.vat.inputVAT_ReturnBuffer || 0)}</span>
-                              </div>
-                              <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
-                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Net VAT Liability (what you pay tax office)</span>
-                                <span className="text-sm text-slate-800 dark:text-white font-bold">{formatCurrency(safeResult.vat.netVATLiability || 0)}</span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600 dark:text-slate-400">Net VAT (liability)</span>
+                      <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.vat.netVATLiability || 0)}</span>
                     </div>
-                    
-                    <div className="flex justify-between items-center mt-3">
+                    <div className="flex justify-between items-center">
                       <span className="text-slate-600 dark:text-slate-400">Return Buffer</span>
                       <span className="text-slate-800 dark:text-white font-semibold">{formatCurrency(safeResult.returnBuffer)}</span>
                     </div>
-                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-between items-center">
+                    <div className="border-t-2 border-slate-300 dark:border-slate-600 pt-4 mt-4 flex justify-between items-center">
                       <span className="text-slate-800 dark:text-white font-bold text-lg">Total Costs</span>
-                      <span className="text-slate-800 dark:text-white font-bold text-xl">{formatCurrency(safeResult.totals.total_cost)}</span>
+                      <span className="text-slate-800 dark:text-white font-bold text-2xl">{formatCurrency(safeResult.totals.total_cost)}</span>
                     </div>
                   </div>
                 </div>
+                    
               </div>
             )}
 
             {/* Analytics Tab */}
             {activeTab === 'charts' && (
-              <PerformanceCharts chartData={chartData} result={result} />
+              <div className="space-y-8">
+                <div role="tablist" className="flex gap-1 border-b-2 border-slate-200 dark:border-slate-700 overflow-x-auto">
+                  <button
+                    onClick={() => setAnalyticsView('performance')}
+                    role="tab"
+                    aria-selected={analyticsView === 'performance'}
+                    aria-controls="analytics-panel-performance"
+                    tabIndex={analyticsView === 'performance' ? 0 : -1}
+                    className={`px-5 py-2.5 text-sm font-semibold transition-all duration-200 whitespace-nowrap border-b-2 -mb-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                      analyticsView === 'performance'
+                        ? 'border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    Performance Charts
+                  </button>
+                  <button
+                    onClick={() => setAnalyticsView('benchmarks')}
+                    role="tab"
+                    aria-selected={analyticsView === 'benchmarks'}
+                    aria-controls="analytics-panel-benchmarks"
+                    tabIndex={analyticsView === 'benchmarks' ? 0 : -1}
+                    className={`px-5 py-2.5 text-sm font-semibold transition-all duration-200 whitespace-nowrap border-b-2 -mb-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                      analyticsView === 'benchmarks'
+                        ? 'border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    Benchmarks
+                  </button>
+                  <button
+                    onClick={() => setAnalyticsView('cashflow')}
+                    role="tab"
+                    aria-selected={analyticsView === 'cashflow'}
+                    aria-controls="analytics-panel-cashflow"
+                    tabIndex={analyticsView === 'cashflow' ? 0 : -1}
+                    className={`px-5 py-2.5 text-sm font-semibold transition-all duration-200 whitespace-nowrap border-b-2 -mb-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                      analyticsView === 'cashflow'
+                        ? 'border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    Cash Flow
+                  </button>
+                </div>
+
+                <div className="mt-6">
+                  <div role="tabpanel" id="analytics-panel-performance" hidden={analyticsView !== 'performance'}>
+                    {analyticsView === 'performance' && (
+                      <PerformanceCharts chartData={chartData} result={result} />
+                    )}
+                  </div>
+
+                  <div role="tabpanel" id="analytics-panel-benchmarks" hidden={analyticsView !== 'benchmarks'}>
+                    {analyticsView === 'benchmarks' && (
+                      <BenchmarkComparisons result={result} />
+                    )}
+                  </div>
+
+                  <div role="tabpanel" id="analytics-panel-cashflow" hidden={analyticsView !== 'cashflow'}>
+                    {analyticsView === 'cashflow' && (
+                      <CashFlowTimeline projection={cashFlowProjection} />
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
 
-            {/* Intelligence Tab */}
-            {activeTab === 'insights' && (
-              <InsightFeed insights={insights} performanceTier={performanceTier} />
-            )}
-
-            {/* Bulk Upload Tab */}
-            {activeTab === 'bulk' && (
-              <BulkUploader />
-            )}
-
-            {/* Actions Tab - Trigger-based Recommendations */}
+            {/* Actions Tab - Math-backed Recommendations */}
             {activeTab === 'recommendations' && (
               <ActionsPanel result={result} />
             )}

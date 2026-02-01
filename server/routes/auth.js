@@ -289,5 +289,84 @@ router.put('/profile', [
   );
 });
 
+/**
+ * Demo login - instant access without credentials
+ * Only works when DEMO_MODE is enabled
+ */
+router.post('/demo-login', async (req, res) => {
+  try {
+    // Check if demo mode is enabled
+    if (process.env.DEMO_MODE !== 'true') {
+      return res.status(403).json({ error: 'Demo mode is not enabled' });
+    }
+
+    const demoEmail = 'admin@kleinpaket.com';
+    const demoPassword = 'admin123';
+
+    // Check if demo user exists
+    db.get('SELECT * FROM users WHERE email = ?', [demoEmail], async (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      // If user doesn't exist, create it
+      if (!user) {
+        const hashedPassword = await bcrypt.hash(demoPassword, 10);
+        
+        db.run(
+          'INSERT INTO users (email, password_hash, name, plan, demo_mode_flag) VALUES (?, ?, ?, ?, ?)',
+          [demoEmail, hashedPassword, 'Demo Admin', 'pro', 1],
+          function(err) {
+            if (err) {
+              return res.status(500).json({ error: 'Failed to create demo user' });
+            }
+
+            // Generate JWT token for newly created user
+            const token = jwt.sign(
+              { id: this.lastID, email: demoEmail, plan: 'pro' },
+              JWT_SECRET,
+              { expiresIn: '24h' }
+            );
+
+            return res.json({
+              message: 'Demo login successful',
+              token,
+              user: {
+                id: this.lastID,
+                email: demoEmail,
+                name: 'Demo Admin',
+                plan: 'pro',
+                theme_pref: 'dark'
+              }
+            });
+          }
+        );
+      } else {
+        // User exists, generate token
+        const token = jwt.sign(
+          { id: user.id, email: user.email, plan: user.plan },
+          JWT_SECRET,
+          { expiresIn: '24h' }
+        );
+
+        res.json({
+          message: 'Demo login successful',
+          token,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            plan: user.plan,
+            theme_pref: user.theme_pref
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Demo login error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
 

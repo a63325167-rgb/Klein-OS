@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { H3, Caption, MetricDisplay } from '../ui/Typography';
 import {
   PieChart,
   Pie,
@@ -88,40 +89,48 @@ const PerformanceCharts = ({ chartData, result }) => {
   return (
     <div className="space-y-6">
       {/* Chart Selector */}
-      <div className="flex flex-wrap gap-2">
-        {chartButtons.map(({ id, label, icon: Icon }) => (
-          <motion.button
-            key={id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setActiveChart(id)}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
-              activeChart === id
-                ? 'bg-blue-600 dark:bg-blue-600 text-white shadow-lg'
-                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
-            }`}
-          >
-            <Icon className="w-4 h-4" />
-            {label}
-          </motion.button>
-        ))}
+      <div role="tablist" className="flex gap-1 border-b-2 border-slate-200 dark:border-slate-700 overflow-x-auto">
+        {chartButtons.map(({ id, label, icon: Icon }) => {
+          const isActive = activeChart === id;
+          return (
+            <motion.button
+              key={id}
+              onClick={() => setActiveChart(id)}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`chart-panel-${id}`}
+              tabIndex={isActive ? 0 : -1}
+              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-all duration-200 whitespace-nowrap border-b-2 -mb-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                isActive
+                  ? 'border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Charts Container */}
       <motion.div
         key={activeChart}
+        role="tabpanel"
+        id={`chart-panel-${activeChart}`}
+        aria-labelledby={`chart-tab-${activeChart}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg"
+        className="min-h-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg"
       >
         {/* Profit Distribution Pie Chart */}
         {activeChart === 'distribution' && (
           <div>
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+            <div className="mb-4 flex items-center gap-2">
               <PieChartIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              Cost & Profit Distribution
-            </h3>
+              <H3 className="mb-0">Cost & Profit Distribution</H3>
+            </div>
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <Pie
@@ -280,25 +289,25 @@ const PerformanceCharts = ({ chartData, result }) => {
               </LineChart>
             </ResponsiveContainer>
 
-            {/* Break-even stats */}
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 rounded-lg p-4">
-                <div className="text-sm text-cyan-600 dark:text-cyan-400 mb-1">Break-even Point</div>
-                <div className="text-2xl font-bold text-slate-800 dark:text-white">
-                  ~{Math.ceil((result.input.fixed_costs || 500) / (result.totals.net_profit || 1))} units
-                </div>
-                <div className="text-xs text-slate-600 dark:text-gray-400 mt-1">
-                  Based on €{result.input.fixed_costs || 500} setup costs + per-unit variable costs
-                </div>
+            {/* Break-even Analysis - Two Separate Concepts */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="h-32 bg-red-50 dark:bg-red-500/10 border-2 border-red-200 dark:border-red-500/30 rounded-xl p-6 flex flex-col justify-center">
+                <Caption uppercase className="text-red-700 dark:text-red-400 mb-2 font-semibold">Break-Even Price (per unit)</Caption>
+                <MetricDisplay size="small" className="text-red-800 dark:text-red-200 mb-1">
+                  {formatCurrency(result.totals.total_cost)}
+                </MetricDisplay>
+                <Caption className="text-red-600 dark:text-red-400">
+                  Minimum selling price to avoid losing money on each sale
+                </Caption>
               </div>
-              <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-lg p-4">
-                <div className="text-sm text-green-600 dark:text-green-400 mb-1">Profit at 100 units</div>
-                <div className="text-2xl font-bold text-slate-800 dark:text-white">
-                  {formatCurrency((result.totals.net_profit * 100) - (result.input.fixed_costs || 500))}
-                </div>
-                <div className="text-xs text-slate-600 dark:text-gray-400 mt-1">
-                  After €{result.input.fixed_costs || 500} setup costs
-                </div>
+              <div className="h-32 bg-cyan-50 dark:bg-cyan-500/10 border-2 border-cyan-200 dark:border-cyan-500/30 rounded-xl p-6 flex flex-col justify-center">
+                <Caption uppercase className="text-cyan-700 dark:text-cyan-400 mb-2 font-semibold">Setup Cost Recovery</Caption>
+                <MetricDisplay size="small" className="text-cyan-800 dark:text-cyan-200 mb-1">
+                  {Math.ceil((result.input.fixed_costs || 500) / (result.totals.net_profit || 1))} units
+                </MetricDisplay>
+                <Caption className="text-cyan-600 dark:text-cyan-400">
+                  Units needed to recover your €{(result.input.fixed_costs || 500).toLocaleString()} initial investment
+                </Caption>
               </div>
             </div>
           </div>

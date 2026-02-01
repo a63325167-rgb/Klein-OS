@@ -4,22 +4,32 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { ProductsProvider } from './contexts/ProductsContext';
 import Navbar from './components/Navbar';
 import RouteTransition from './components/RouteTransition';
 import Breadcrumb from './components/Breadcrumb';
 import LandingPage from './pages/LandingPage';
 import CalculatorPage from './pages/CalculatorPage';
+import PortfolioPage from './pages/PortfolioPage';
+import Dashboard from './pages/Dashboard';
+import Shipping from './pages/Shipping';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import History from './pages/History';
 import BulkUpload from './pages/BulkUpload';
+import BulkUploadWithContext from './components/BulkUploadWithContext';
+import BulkUploadPage from './pages/BulkUploadPage';
+import AnalyticsDashboardPage from './pages/AnalyticsDashboardPage';
+import AuditReportPage from './pages/AuditReportPage';
 import ApiKeys from './pages/ApiKeys';
 import Teams from './pages/Teams';
 import Pricing from './pages/Pricing';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
+import DemoAccessButton from './components/DemoAccessButton';
 import './index.css';
 
 function App() {
@@ -52,9 +62,10 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <Router>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-              <Routes>
+          <ProductsProvider>
+            <Router>
+              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+                <Routes>
                 {/* Landing page without navbar */}
                 <Route path="/" element={
                   <RouteTransition>
@@ -62,17 +73,53 @@ function App() {
                   </RouteTransition>
                 } />
                 
-                {/* Calculator page with navbar */}
+                {/* Dashboard routes - no Navbar (DashboardLayout handles it) */}
+                <Route path="/dashboard" element={
+                  <RouteTransition>
+                    <Dashboard />
+                  </RouteTransition>
+                } />
+                
                 <Route path="/calculator" element={
-                  <div>
-                    <Navbar />
-                    <main className="container mx-auto px-4 py-8">
-                      <Breadcrumb />
-                      <RouteTransition>
-                        <CalculatorPage />
-                      </RouteTransition>
-                    </main>
-                  </div>
+                  <RouteTransition>
+                    <CalculatorPage />
+                  </RouteTransition>
+                } />
+                
+                <Route path="/portfolio" element={
+                  <RouteTransition>
+                    <PortfolioPage />
+                  </RouteTransition>
+                } />
+                
+                <Route path="/shipping" element={
+                  <RouteTransition>
+                    <Shipping />
+                  </RouteTransition>
+                } />
+                
+                <Route path="/bulk-upload" element={
+                  <RouteTransition>
+                    <BulkUploadPage />
+                  </RouteTransition>
+                } />
+                
+                <Route path="/analytics-dashboard" element={
+                  <RouteTransition>
+                    <AnalyticsDashboardPage />
+                  </RouteTransition>
+                } />
+                
+                <Route path="/analytics/audit-report" element={
+                  <RouteTransition>
+                    <AuditReportPage />
+                  </RouteTransition>
+                } />
+                
+                <Route path="/settings" element={
+                  <RouteTransition>
+                    <Settings />
+                  </RouteTransition>
                 } />
                 
                 {/* All other pages with navbar */}
@@ -119,7 +166,7 @@ function App() {
                         <Route path="/bulk" element={
                           <RouteTransition>
                             <ProtectedRoute requiredPlan="premium">
-                              <BulkUpload />
+                              <BulkUploadWithContext />
                             </ProtectedRoute>
                           </RouteTransition>
                         } />
@@ -162,8 +209,10 @@ function App() {
                   },
                 }}
               />
+              <DemoAccessButton />
             </div>
           </Router>
+        </ProductsProvider>
         </SubscriptionProvider>
       </AuthProvider>
     </ThemeProvider>

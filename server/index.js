@@ -77,7 +77,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(session({
   store: new SQLiteStore({
     db: 'sessions.db',
-    dir: './database',
+    dir: path.join(__dirname, 'database'),
   }),
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,

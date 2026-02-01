@@ -68,12 +68,18 @@ const KLEINPAKET_LIMITS = {
   MAX_PRICE: 60
 };
 
-// Shipping costs
-const SHIPPING_COSTS = {
-  KLEINPAKET: 3.79,
-  STANDARD: 5.50,
-  HEAVY: 15.50
-};
+// Realistic DHL Shipping Tiers (Germany)
+const SHIPPING_TIERS = [
+  { maxWeight: 2, cost: 5.49, name: 'Standard Packet' },
+  { maxWeight: 5, cost: 7.49, name: 'Small Parcel' },
+  { maxWeight: 10, cost: 10.49, name: 'Medium Parcel' },
+  { maxWeight: 31.5, cost: 16.49, name: 'Large Parcel' },
+  { maxWeight: 300, cost: null, name: 'Freight' }, // Calculated
+  { maxWeight: Infinity, cost: null, name: 'Freight Quote Required' }
+];
+
+// Dimensional weight divisor (industry standard)
+const DIM_WEIGHT_DIVISOR = 5000; // cm³/kg
 
 /**
  * Calculate Amazon fee based on category
@@ -84,12 +90,26 @@ export function calculateAmazonFee(category, sellingPrice) {
 }
 
 /**
- * Calculate shipping cost
+ * Calculate dimensional weight
+ */
+function calculateDimensionalWeight(length_cm, width_cm, height_cm) {
+  const volumeCm3 = length_cm * width_cm * height_cm;
+  return volumeCm3 / DIM_WEIGHT_DIVISOR;
+}
+
+/**
+ * Calculate realistic shipping cost with DHL tiers and dimensional weight
  */
 export function calculateShippingCost(product) {
   const { length_cm, width_cm, height_cm, weight_kg, selling_price } = product;
   
-  // Check if Small Package eligible
+  // Calculate dimensional weight
+  const dimWeight = calculateDimensionalWeight(length_cm, width_cm, height_cm);
+  
+  // Use higher of actual or dimensional weight
+  const chargeableWeight = Math.max(weight_kg, dimWeight);
+  
+  // Check if Small Package eligible (special low-cost tier)
   const isSmallPackageEligible = 
     length_cm <= KLEINPAKET_LIMITS.MAX_LENGTH &&
     width_cm <= KLEINPAKET_LIMITS.MAX_WIDTH &&
@@ -97,32 +117,84 @@ export function calculateShippingCost(product) {
     weight_kg <= KLEINPAKET_LIMITS.MAX_WEIGHT &&
     selling_price <= KLEINPAKET_LIMITS.MAX_PRICE;
   
-  // Heavy items
-  if (weight_kg > 20) {
-    return {
-      cost: SHIPPING_COSTS.HEAVY,
-      type: 'Heavy',
-      reason: 'Weight exceeds 20kg',
-      isSmallPackageEligible: false
-    };
-  }
-  
-  // Small Package eligible
+  // Small Package gets special rate
   if (isSmallPackageEligible) {
     return {
-      cost: SHIPPING_COSTS.KLEINPAKET,
+      cost: 3.79,
       type: 'Small Package',
-      reason: 'Meets Small Package requirements',
-      isSmallPackageEligible: true
+      reason: 'Meets Small Package requirements (€3.79 special rate)',
+      isSmallPackageEligible: true,
+      chargeableWeight: weight_kg,
+      actualWeight: weight_kg,
+      dimensionalWeight: dimWeight
     };
   }
   
-  // Standard shipping
+  // Find appropriate tier based on chargeable weight
+  let shippingCost = 0;
+  let tierName = '';
+  let reason = '';
+  
+  // Freight quote required (>300kg)
+  if (chargeableWeight > 300) {
+    return {
+      cost: 0,
+      type: 'Freight Quote Required',
+      reason: '⚠️ Weight exceeds 300kg - contact carrier for quote',
+      isSmallPackageEligible: false,
+      chargeableWeight,
+      actualWeight: weight_kg,
+      dimensionalWeight: dimWeight,
+      requiresQuote: true
+    };
+  }
+  
+  // Freight calculation (31.5kg - 300kg)
+  if (chargeableWeight > 31.5) {
+    // Base freight cost: €2.50/kg with €80 minimum
+    const baseFreightCost = chargeableWeight * 2.5;
+    
+    // Add dimensional weight surcharge if dim weight > actual weight
+    const dimSurcharge = dimWeight > weight_kg 
+      ? (dimWeight - weight_kg) * 1.5 
+      : 0;
+    
+    shippingCost = Math.max(baseFreightCost + dimSurcharge, 80);
+    tierName = 'Freight';
+    reason = `Freight shipping (${chargeableWeight.toFixed(1)}kg chargeable weight)`;
+    
+    return {
+      cost: parseFloat(shippingCost.toFixed(2)),
+      type: tierName,
+      reason,
+      isSmallPackageEligible: false,
+      chargeableWeight,
+      actualWeight: weight_kg,
+      dimensionalWeight: dimWeight,
+      isFreight: true,
+      dimSurcharge: dimSurcharge > 0 ? dimSurcharge : 0
+    };
+  }
+  
+  // Standard DHL tiers (0-31.5kg)
+  for (const tier of SHIPPING_TIERS) {
+    if (chargeableWeight <= tier.maxWeight) {
+      shippingCost = tier.cost;
+      tierName = tier.name;
+      reason = `${tier.name} (${chargeableWeight.toFixed(1)}kg chargeable weight)`;
+      break;
+    }
+  }
+  
   return {
-    cost: SHIPPING_COSTS.STANDARD,
-    type: 'Standard',
-    reason: 'Standard shipping',
-    isSmallPackageEligible: false
+    cost: shippingCost,
+    type: tierName,
+    reason,
+    isSmallPackageEligible: false,
+    chargeableWeight,
+    actualWeight: weight_kg,
+    dimensionalWeight: dimWeight,
+    dimWeightApplied: dimWeight > weight_kg
   };
 }
 

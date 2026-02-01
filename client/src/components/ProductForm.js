@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, RotateCcw, Info } from 'lucide-react';
+import { Calculator, Package, DollarSign, TrendingUp, AlertCircle, Info, X, Search, Loader, RotateCcw } from 'lucide-react';
 import { calculateProductAnalysis, VAT_RATES } from '../utils/simpleCalculator';
 import { fetchProductByASIN } from '../services/amazonService';
+import { getDefaultReturnRate, RETURN_RATE_BY_CATEGORY } from '../utils/returnRateCalculations';
 
 const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
     height_cm: '',
     weight_kg: '',
     annual_volume: '500',
+    return_rate: '', // B2: Return rate percentage (empty = use category default)
     fixed_costs: '500',
     // New fields for VAT calculation
     seller_country: 'Germany',
@@ -436,6 +438,7 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
       height_cm: parseFloat(formData.height_cm),
       weight_kg: parseFloat(formData.weight_kg),
       annual_volume: parseInt(formData.annual_volume),
+      return_rate: formData.return_rate ? parseFloat(formData.return_rate) : undefined, // B2: Optional, uses category default if not provided
       fixed_costs: parseFloat(formData.fixed_costs),
       // New VAT calculation fields
       seller_country: formData.seller_country,
@@ -463,6 +466,7 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
       height_cm: '',
       weight_kg: '',
       annual_volume: '500',
+      return_rate: '',
       fixed_costs: '500',
       // New fields for VAT calculation
       seller_country: 'Germany',
@@ -1182,6 +1186,54 @@ const ProductForm = ({ onSubmit, isCalculating, canCalculate = true }) => {
                 className="text-red-600 dark:text-red-400 text-xs mt-1.5"
               >
                 {errors.annual_volume}
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Return Rate Input (B2) */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Estimated Return Rate
+            <span className="ml-2 text-xs text-slate-500 dark:text-slate-400 font-normal">
+              (optional - defaults to category average)
+            </span>
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              name="return_rate"
+              value={formData.return_rate}
+              onChange={handleChange}
+              step="0.1"
+              min="0"
+              max="100"
+              className={`form-input w-full px-4 py-2.5 pr-10 rounded-lg border ${
+                errors.return_rate 
+                  ? 'border-red-500 dark:border-red-600' 
+                  : 'border-slate-300 dark:border-slate-600'
+              } bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all`}
+              placeholder={formData.category ? `${getDefaultReturnRate(formData.category)}% (${formData.category} avg)` : "5% (default)"}
+            />
+            <span className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400 font-medium text-sm">%</span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+            💡 Returns reduce profit. Each returned unit costs you the profit plus refund fees. Leave blank to use category average.
+          </p>
+          {formData.category && !formData.return_rate && (
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              Using {formData.category} average: {getDefaultReturnRate(formData.category)}%
+            </p>
+          )}
+          <AnimatePresence>
+            {errors.return_rate && (
+              <motion.p 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-red-600 dark:text-red-400 text-xs mt-1.5"
+              >
+                {errors.return_rate}
               </motion.p>
             )}
           </AnimatePresence>

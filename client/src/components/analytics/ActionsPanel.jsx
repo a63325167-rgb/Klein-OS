@@ -9,8 +9,13 @@ import {
   CheckCircle2,
   ChevronDown,
   Lightbulb,
-  ExternalLink
+  ExternalLink,
+  Warehouse,
+  BarChart3,
+  Clock8,
+  Compass
 } from 'lucide-react';
+import OrderPlanningCard from './OrderPlanningCard';
 
 /**
  * ActionsPanel - Trigger-based Recommendation Engine
@@ -21,6 +26,9 @@ import {
 
 const ActionsPanel = ({ result }) => {
   const [startedActions, setStartedActions] = useState([]);
+  
+  // Feature flag: Hide future API features until integration is complete
+  const SHOW_FUTURE_API_FEATURES = false;
   
   // Safety check: Ensure result exists
   if (!result) {
@@ -49,6 +57,14 @@ const ActionsPanel = ({ result }) => {
   const height_cm = parseFloat(input.height_cm) || 0;
   const feeAmount = amazonFee.amount || 0;
   const feePercent = totalCost > 0 ? (feeAmount / totalCost) * 100 : 0;
+  const dimensionalWeight = shipping.dimensionalWeight || ((input.length_cm || 0) * (input.width_cm || 0) * (input.height_cm || 0)) / 5000 || 0;
+  const productVolumeLiters = ((input.length_cm || 0) * (input.width_cm || 0) * (input.height_cm || 0)) / 1000;
+  const netProfitPerUnit = netProfit || 0;
+  const defaultDeadline = (days) => {
+    const targetDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+    return targetDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  };
+  const toEuro = (value) => `€${Number(value || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   
   // Evaluate all trigger rules
   const triggeredActions = [];
@@ -103,6 +119,176 @@ const ActionsPanel = ({ result }) => {
           template: 'A/B test setup: 90% at €{current_price}, 10% at €{new_price} for 2 weeks. Monitor conversion rate.'
         }
       ]
+    });
+  }
+
+  // ========== RULE 4: STORAGE COST WARNING ==========
+  if (dimensionalWeight > 10) {
+    const monthlyStorageCost = dimensionalWeight * 15; // €15 per kg of dim weight
+    const storageHorizonMonths = 2;
+    const storageProfitErosion = monthlyStorageCost * storageHorizonMonths;
+    triggeredActions.push({
+      id: 'storage-warning',
+      title: "You're Losing Money on Storage",
+      priority: 'HIGH',
+      priorityColor: 'red',
+      icon: Warehouse,
+      iconBg: 'bg-rose-100 dark:bg-rose-900/30',
+      iconColor: 'text-rose-600 dark:text-rose-400',
+      badge: '🔴 STORAGE ALERT',
+      badgeBg: 'bg-rose-100 dark:bg-rose-900/40',
+      badgeText: 'text-rose-700 dark:text-rose-300',
+      summary: `Bulky item (${dimensionalWeight.toFixed(1)}kg dimensional weight) costs ${toEuro(monthlyStorageCost)} per month in Amazon storage fees.`,
+      impact: `Lose ${toEuro(storageProfitErosion)} every ${storageHorizonMonths} months if inventory lingers.`,
+      annualSavings: storageProfitErosion * (12 / storageHorizonMonths),
+      actions: [
+        {
+          id: 'sell-fast',
+          label: 'Move Inventory in <60 Days',
+          detail: `Run 10% discount + coupon stack to accelerate sell-through. Target sell-out date: ${defaultDeadline(60)}.`,
+          template: 'Promo checklist: 10% coupon, 5% PPC boost, send email to repeat buyers.'
+        },
+        {
+          id: 'optimize-packaging',
+          label: 'Reduce Dimensional Weight',
+          detail: `Cut packaging volume by 15% to drop storage cost below ${toEuro((dimensionalWeight * 0.85) * 15)}.`,
+          template: 'Ask supplier for flat-pack or vacuum-pack option; verify FBA acceptance.'
+        }
+      ],
+      deadline: `Act before ${defaultDeadline(30)} to protect Q${Math.ceil((new Date().getMonth() + 1) / 3)} profit.`
+    });
+  }
+
+  // ========== RULE 5: CATEGORY RETURN RATE WARNING ==========
+  const categoryReturnRates = {
+    fashion: [30, 40],
+    apparel: [30, 40],
+    clothing: [30, 40],
+    electronics: [15, 25],
+    tech: [15, 25],
+    health: [5, 10],
+    beauty: [5, 10],
+    books: [2, 5]
+  };
+  const categoryKey = (input.category || '').toLowerCase();
+  const matchedCategory = Object.keys(categoryReturnRates).find((key) => categoryKey.includes(key));
+  if (matchedCategory && price > 0) {
+    const [minRate, maxRate] = categoryReturnRates[matchedCategory];
+    const avgReturnRate = (minRate + maxRate) / 2;
+    const costPerReturn = (shipping.cost || 0) + (cogs * 0.1);
+    const adjustedMarginPercent = ((netProfitPerUnit - ((avgReturnRate / 100) * costPerReturn)) / price) * 100;
+    triggeredActions.push({
+      id: 'return-rate-warning',
+      title: "You're Losing Margin to Returns",
+      priority: 'MEDIUM',
+      priorityColor: 'yellow',
+      icon: BarChart3,
+      iconBg: 'bg-amber-100 dark:bg-amber-900/30',
+      iconColor: 'text-amber-600 dark:text-amber-400',
+      badge: '🟡 RETURN ALERT',
+      badgeBg: 'bg-amber-100 dark:bg-amber-900/40',
+      badgeText: 'text-amber-700 dark:text-amber-300',
+      summary: `${input.category} averages ${avgReturnRate.toFixed(0)}% returns. Each return costs ~${toEuro(costPerReturn)} (shipping + restocking).`,
+      impact: `Real profit margin drops from ${margin.toFixed(1)}% → ${adjustedMarginPercent.toFixed(1)}% after returns.`,
+      annualSavings: (avgReturnRate / 100) * costPerReturn * volume,
+      actions: [
+        {
+          id: 'quality-checklist',
+          label: 'Cut Returns by 20%',
+          detail: 'Add sizing chart + unboxing video to PDP. Expect 6-8% return reduction.',
+          template: 'Checklist: Update PDP media, add A+ content module, include “fit true-to-size” badge.'
+        },
+        {
+          id: 'returns-automation',
+          label: 'Automate Inspection Fee',
+          detail: `Charge €${(costPerReturn * 0.5).toFixed(2)} restocking fee for “buyer remorse” reasons to offset loss.`,
+          template: 'Policy update: Enable “restocking fee” in Amazon Seller Central → Settings → Return settings.'
+        }
+      ],
+      deadline: `Implement before ${defaultDeadline(14)} to stabilize Q${Math.ceil((new Date().getMonth() + 1) / 3)} margin.`
+    });
+  }
+
+  // ========== RULE 6: SEASONAL DEMAND WARNING ==========
+  const seasonalCatalog = [
+    { keywords: ['christmas', 'xmas', 'holiday', 'advent'], peak: 'Oct-Dec', orderBy: '15 Sep', offSeason: 'Jan-Sep' },
+    { keywords: ['summer', 'pool', 'beach', 'inflatable'], peak: 'May-Aug', orderBy: '15 Apr', offSeason: 'Sep-Apr' },
+    { keywords: ['halloween'], peak: 'Aug-Oct', orderBy: '15 Jul', offSeason: 'Nov-Jul' }
+  ];
+  const productName = (input.product_name || input.productName || '').toLowerCase();
+  const seasonalMatch = seasonalCatalog.find((entry) => entry.keywords.some((kw) => productName.includes(kw)));
+  if (seasonalMatch) {
+    const offSeasonMonthlyStorage = dimensionalWeight * 15;
+    triggeredActions.push({
+      id: 'seasonal-alert',
+      title: 'Seasonal Demand Window Approaching',
+      priority: 'MEDIUM',
+      priorityColor: 'yellow',
+      icon: Clock8,
+      iconBg: 'bg-sky-100 dark:bg-sky-900/30',
+      iconColor: 'text-sky-600 dark:text-sky-400',
+      badge: '🟡 SEASONAL',
+      badgeBg: 'bg-sky-100 dark:bg-sky-900/40',
+      badgeText: 'text-sky-700 dark:text-sky-300',
+      summary: `Peak demand ${seasonalMatch.peak}. Capture 80% of sales by ordering ${volume.toLocaleString('de-DE')} units before ${seasonalMatch.orderBy}.`,
+      impact: `Off-season storage drains ${toEuro(offSeasonMonthlyStorage)} per month (${seasonalMatch.offSeason}).`,
+      annualSavings: offSeasonMonthlyStorage * 6,
+      actions: [
+        {
+          id: 'order-deadline',
+          label: 'Lock Purchase Order Now',
+          detail: `Place PO by ${seasonalMatch.orderBy} with 30-day lead time to arrive before peak.`,
+          template: 'Supplier email: “We project peak demand in ${seasonalMatch.peak}. Please confirm ship date before ${seasonalMatch.orderBy}.”'
+        },
+        {
+          id: 'offseason-clearance',
+          label: 'Plan Off-Season Clearance',
+          detail: `Run “warehouse deal” campaign starting ${seasonalMatch.offSeason.split('-')[0]} to avoid storage fees.`,
+          template: 'Set up Amazon Outlet deal + email list for seasonal close-out.'
+        }
+      ],
+      deadline: `Finalize order plan by ${defaultDeadline(7)}.`
+    });
+  }
+
+  // ========== RULE 7: COMPETITOR PRICE ALERT (PLACEHOLDER) ==========
+  // TODO: Integrate Rainforest API for real-time market pricing
+  // Expected launch: When API key and data pipeline are ready
+  // Blocked by: API integration, competitor data source
+  if (SHOW_FUTURE_API_FEATURES) {
+    const marketPriceWindow = {
+      low: price * 0.9,
+      high: price * 1.1
+    };
+    triggeredActions.push({
+      id: 'competitor-price',
+      title: 'Market Price Alignment Needed',
+      priority: 'LOW',
+      priorityColor: 'blue',
+      icon: Compass,
+      iconBg: 'bg-indigo-100 dark:bg-indigo-900/30',
+      iconColor: 'text-indigo-600 dark:text-indigo-400',
+      badge: 'MARKET INSIGHTS',
+      badgeBg: 'bg-indigo-100 dark:bg-indigo-900/40',
+      badgeText: 'text-indigo-700 dark:text-indigo-300',
+      summary: `Market range (est): ${toEuro(marketPriceWindow.low)} - ${toEuro(marketPriceWindow.high)}. Your price: ${toEuro(price)}.`,
+      impact: `Target ${toEuro(price * 0.75)} selling price for 25% margin with competitive pricing data.`,
+      annualSavings: (price - price * 0.75) * volume,
+      actions: [
+        {
+          id: 'collect-competitor-data',
+          label: 'Collect Live Competitor Prices',
+          detail: 'Connect market data API or export Keepa data to validate target price band.',
+          template: 'Task: Create API key → configure cron job → store price history in database.'
+        },
+        {
+          id: 'price-test',
+          label: 'Run Price Elasticity Test',
+          detail: `Test ${toEuro(price * 0.95)} and ${toEuro(price * 1.05)} for 7 days each. Track conversion + profit.`,
+          template: 'Experiment plan: Split weeks by price, monitor session %, conversion, ordered revenue.'
+        }
+      ],
+      deadline: `Prep data integration by ${defaultDeadline(21)}.`
     });
   }
   
@@ -347,6 +533,9 @@ const ActionsPanel = ({ result }) => {
   
   return (
     <div className="space-y-6">
+      {/* Order Planning Card */}
+      <OrderPlanningCard result={result} />
+      
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -412,7 +601,7 @@ const ActionCard = ({ action, index, isStarted, onToggleStarted }) => {
       className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden"
     >
       {/* Header */}
-      <div className="p-5 pb-4">
+      <div className="p-6">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3 flex-1">
             <div className={`w-12 h-12 ${action.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
@@ -473,7 +662,7 @@ const ActionCard = ({ action, index, isStarted, onToggleStarted }) => {
             transition={{ duration: 0.3 }}
             className="overflow-hidden border-t border-slate-200 dark:border-slate-700"
           >
-            <div className="p-5 pt-4 space-y-4 bg-slate-50 dark:bg-slate-900/30">
+            <div className="p-6 space-y-4 bg-slate-50 dark:bg-slate-900/30">
               {action.actions.map((step, idx) => (
                 <div key={step.id} className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                   <div className="flex items-start gap-3">

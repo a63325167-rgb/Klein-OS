@@ -14,6 +14,11 @@ import {
   parseNumberSafe
 } from './precision';
 import { calculateVATBreakdown } from './simpleCalculator';
+import {
+  getDefaultReturnRate,
+  calculateReturnImpact,
+  validateReturnRate
+} from './returnRateCalculations';
 
 // Constants
 export const CALCULATION_VERSION = '2.0.0';
@@ -431,24 +436,65 @@ export function calculateProductAnalysis(product, options = {}) {
   const vat = calculateVATBreakdown(product);
   const returnBuffer = calculateReturnBuffer(product);
   
-  // Step 4: Calculate totals
+  // Step 4: Handle return rate (B2 Integration)
+  // Get return rate from product input or use category default
+  let returnRate = parseNumberSafe(product.return_rate);
+  if (returnRate === null || returnRate === undefined || isNaN(returnRate)) {
+    returnRate = getDefaultReturnRate(product.category);
+  }
+  
+  // Validate return rate
+  const returnRateValidation = validateReturnRate(returnRate);
+  if (!returnRateValidation.isValid) {
+    returnRate = 0; // Fallback to 0 if invalid
+  }
+  
+  // Step 5: Calculate totals WITHOUT returns first (for comparison)
   const totalCost = calculateTotalCost(product, shipping, amazonFee, vat, returnBuffer);
   
   // Use NET selling price for profit calculations (EU VAT methodology)
   const sellingPriceNet = vat.sellingPriceNet || parseNumberSafe(product.selling_price);
-  const netProfit = safeSubtract(sellingPriceNet, totalCost);
-  const roi = calculateROI(netProfit, totalCost);
-  const profitMargin = calculateProfitMargin(netProfit, sellingPriceNet);
+  const netProfitWithoutReturns = safeSubtract(sellingPriceNet, totalCost);
   
-  // Step 5: Additional metrics
+  // Step 6: Calculate return impact and adjust profit
+  const monthlyVolume = parseInt(product.monthly_volume) || parseInt(product.annual_volume) / 12 || 100;
+  
+  let returnImpact = null;
+  let netProfit = netProfitWithoutReturns;
+  let profitMargin = calculateProfitMargin(netProfit, sellingPriceNet);
+  
+  if (returnRate > 0) {
+    // Calculate return impact
+    returnImpact = calculateReturnImpact({
+      sellingPrice: sellingPriceNet,
+      cogs: vat.cogsNet || parseNumberSafe(product.buying_price),
+      amazonFee: vat.amazonFeeNet || amazonFee.amount,
+      shippingCost: vat.shippingNet || shipping.cost,
+      vatLiability: vat.netVATLiability || vat.amount,
+      returnRate: returnRate,
+      monthlyVolume: monthlyVolume
+    });
+    
+    // Use adjusted profit (accounts for returns)
+    netProfit = returnImpact.profitWithReturns;
+    profitMargin = roundToPrecision(
+      safeDivide(safeMultiply(netProfit, 100), sellingPriceNet),
+      2
+    );
+  }
+  
+  // Step 7: Calculate ROI and other metrics with adjusted profit
+  const roi = calculateROI(netProfit, totalCost);
+  
+  // Step 8: Additional metrics (using adjusted profit)
   const fixedCosts = parseNumberSafe(product.fixed_costs) || 500;
   const breakEvenUnits = calculateBreakEven(netProfit, fixedCosts);
   const recommendedPrice = calculateRecommendedPrice(product, options.targetROI || 20);
   
-  // Step 6: Performance categorization
+  // Step 9: Performance categorization (using adjusted profit)
   const performanceTier = categorizePerformance(roi, profitMargin, netProfit);
   
-  // Step 7: Integrity check
+  // Step 10: Integrity check
   const integrityCheck = verifyCalculationIntegrity(product, totalCost, netProfit);
   
   return {
@@ -470,7 +516,10 @@ export function calculateProductAnalysis(product, options = {}) {
       width_cm: parseNumberSafe(product.width_cm),
       height_cm: parseNumberSafe(product.height_cm),
       weight_kg: parseNumberSafe(product.weight_kg),
-      annual_volume: parseInt(product.annual_volume) || 500
+      annual_volume: parseInt(product.annual_volume) || 500,
+      monthly_volume: monthlyVolume,
+      return_rate: returnRate,
+      return_rate_source: product.return_rate ? 'user_input' : 'category_default'
     },
     
     // Calculations
@@ -479,13 +528,17 @@ export function calculateProductAnalysis(product, options = {}) {
     amazonFee,
     vat,
     returnBuffer,
+    returnImpact,
+    returnRateValidation,
     
     // Results
     totals: {
       total_cost: totalCost,
-      net_profit: netProfit,
+      net_profit: netProfit, // Adjusted for returns
+      net_profit_without_returns: netProfitWithoutReturns, // For comparison
       roi_percent: roi,
-      profit_margin: profitMargin,
+      profit_margin: profitMargin, // Adjusted for returns
+      profit_margin_without_returns: calculateProfitMargin(netProfitWithoutReturns, sellingPriceNet),
       break_even_units: breakEvenUnits,
       recommended_price: recommendedPrice
     },
